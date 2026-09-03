@@ -1,0 +1,16 @@
+{
+  "name": "English Haters",
+  "short_name": "English Haters",
+  "id": "/",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f7fb",
+  "theme_color": "#6b5cff",
+  "description": "Learn English rules, practice consistently, and prepare for Bangladesh exams.",
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "lang": "en-BD"
+}

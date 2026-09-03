@@ -1,0 +1,7 @@
+# English Haters private source
+.env
+.env.*
+!.env.example
+.DS_Store
+node_modules/
+*.log
