@@ -1,4 +1,4 @@
--- English Haters Phase 1.6 — final hardened Supabase foundation
+﻿-- English Haters Phase 1.6 — final hardened Supabase foundation
 create extension if not exists pgcrypto;
 
 create table if not exists public.profiles (
@@ -42,6 +42,7 @@ create table if not exists public.lessons (
   title text not null,
   rule text not null,
   examples jsonb not null default '[]'::jsonb,
+  sections jsonb not null default '[]'::jsonb,
   sort_order integer not null default 0,
   published boolean not null default true,
   updated_at timestamptz not null default now()
@@ -371,3 +372,4 @@ begin new.content_hash:=md5(lower(regexp_replace(trim(new.question),'\s+',' ','g
 revoke all on function private.set_question_content_hash() from public,anon,authenticated;
 drop trigger if exists set_question_content_hash_trigger on public.questions;
 create trigger set_question_content_hash_trigger before insert or update of question,choices on public.questions for each row execute function private.set_question_content_hash();
+

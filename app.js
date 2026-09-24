@@ -1,4 +1,4 @@
-const state = {
+﻿const state = {
   view:'home',
   track:localStorage.getItem('eh_track')||'ssc',
   topic:'article',
@@ -221,8 +221,44 @@ function learn(){
   <div class="section-head"><h2>Topics</h2><small>${list.length} in this path</small></div>${list.length?`<div class="lesson-list path-list">${list.map((item,i)=>{const s=getTopicStats(state.track,item.slug),status=s.mastery>=80?'Strong':s.attempts?'In progress':'New';return `<button class="card lesson path-lesson" data-topic="${esc(item.slug)}"><div class="n ${s.mastery>=80?'complete':''}">${s.mastery>=80?'✓':i+1}</div><div class="lesson-copy"><div class="lesson-title-row"><h4>${esc(item.title)}</h4><span class="topic-status ${status==='Strong'?'strong':status==='In progress'?'progressing':''}">${status}</span></div><p>Rule → Example → Practice</p><div class="progress tiny"><i style="width:${s.mastery}%"></i></div><small>${s.attempts?`${s.mastery}% mastery • ${s.attempts} attempts`:'Not practiced yet'}</small></div><div class="arrow">›</div></button>`}).join('')}</div>`:'<div class="card empty"><h3>No topics yet</h3><p>Published lessons for this path will appear here.</p></div>'}`
 }
 function rule(){
-  const l=getLesson(state.track,state.topic);const title=l?.title||humanTopic(state.topic);const ruleText=l?.rule||'A short lesson has not been added yet. You can still practice the available questions for this topic.';const examples=Array.isArray(l?.examples)?l.examples:[];const stats=getTopicStats(state.track,state.topic);
-  return `${header()}<button class="cta secondary" id="backLearn">← Back to topics</button><div style="height:12px"></div><div class="card rule"><div class="eyebrow">Learn</div><h2>${esc(title)}</h2><p>${esc(ruleText)}</p>${examples.length?`<div class="example"><b>Example${examples.length>1?'s':''}</b><br>${examples.map(esc).join(' • ')}</div>`:''}<div class="mastery-box"><div><b>${stats.mastery}% mastery</b><span>${stats.attempts} attempts • ${stats.accuracy}% accuracy</span></div><div class="progress"><i style="width:${stats.mastery}%"></i></div></div><button class="cta" id="practiceTopic">Practice this topic</button></div>`
+  const l=getLesson(state.track,state.topic);
+  const title=l?.title||humanTopic(state.topic);
+  const ruleText=l?.rule||'A short lesson has not been added yet. You can still practice the available questions for this topic.';
+  const examples=Array.isArray(l?.examples)?l.examples:[];
+  const sections=Array.isArray(l?.sections)?l.sections:[];
+  const stats=getTopicStats(state.track,state.topic);
+
+  const sectionHtml=sections.length?`<div class="lesson-sections">${sections.map((s,i)=>{
+    const ex=Array.isArray(s.examples)?s.examples:[];
+    return `<section class="lesson-section">
+      <div class="lesson-section-head">
+        <span class="lesson-step">${String(i+1).padStart(2,'0')}</span>
+        <div>
+          ${s.tag?`<span class="lesson-tag">${esc(s.tag)}</span>`:''}
+          <h3>${esc(s.title||`Section ${i+1}`)}</h3>
+        </div>
+      </div>
+      <div class="lesson-section-body">${esc(s.body||'')}</div>
+      ${ex.length?`<div class="lesson-examples"><b>Examples</b>${ex.map(x=>`<div>${esc(x)}</div>`).join('')}</div>`:''}
+      ${s.tip?`<div class="lesson-tip"><b>💡 মনে রাখো</b><span>${esc(s.tip)}</span></div>`:''}
+    </section>`;
+  }).join('')}</div>`:'';
+
+  return `${header()}
+    <button class="cta secondary" id="backLearn">← Back to topics</button>
+    <div style="height:12px"></div>
+    <div class="card rule lesson-reader">
+      <div class="eyebrow">Learn • ${esc(tracks[state.track]?.name||state.track)}</div>
+      <h2>${esc(title)}</h2>
+      <p class="lesson-intro">${esc(ruleText)}</p>
+      ${sectionHtml}
+      ${!sections.length&&examples.length?`<div class="example"><b>Example${examples.length>1?'s':''}</b><br>${examples.map(esc).join(' • ')}</div>`:''}
+      <div class="mastery-box">
+        <div><b>${stats.mastery}% mastery</b><span>${stats.attempts} attempts • ${stats.accuracy}% accuracy</span></div>
+        <div class="progress"><i style="width:${stats.mastery}%"></i></div>
+      </div>
+      <button class="cta" id="practiceTopic">Practice this topic</button>
+    </div>`;
 }
 function trackSwitcher(){return `<div class="segment">${Object.entries(tracks).map(([k,t])=>`<button data-practice-track="${k}" class="${state.track===k?'active':''}">${t.icon} ${t.name}</button>`).join('')}</div>`}
 function practiceHub(){
@@ -507,3 +543,4 @@ chooseDefaultTopic();
 backfillAchievements();
 render();
 initBackend();
+

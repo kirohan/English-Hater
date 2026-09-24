@@ -1,4 +1,4 @@
-(() => {
+﻿(() => {
   const cfg = window.EH_BACKEND_CONFIG || {};
   const enabled = Boolean(cfg.supabaseUrl && cfg.supabaseAnonKey && window.supabase?.createClient);
   const client = enabled ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
@@ -236,6 +236,7 @@
       title: l.title,
       rule: l.rule,
       examples: Array.isArray(l.examples) ? l.examples : [],
+      sections: Array.isArray(l.sections) ? l.sections : [],
       sort_order: Number(l.sort_order || 0),
       published: l.published !== false,
       cloud: true
@@ -374,3 +375,4 @@
     isAdmin, adminCounts, publishContent, pullEditableContent
   };
 })();
+
