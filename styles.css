@@ -1,4 +1,4 @@
-:root{
+﻿:root{
   --bg:#f6f7fb;--card:#fff;--text:#15171c;--muted:#6a7280;--line:#e8eaf0;
   --accent:#6b5cff;--accent2:#8c7cff;--good:#1f9d66;--bad:#e14d57;--warn:#e9a23b;
   --radius:22px;--shadow:0 10px 30px rgba(22,27,45,.08)
@@ -77,36 +77,16 @@ body[data-network="offline"] .shell{padding-top:54px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}.card:hover,.track:hover,.path-lesson:hover,.exam-action:hover{transform:none!important}}
 @media(forced-colors:active){.progress i,.heatmap i,.mission-icon,.choice-key{forced-color-adjust:none}.card,.choice,.cta.secondary{border:1px solid CanvasText}.nav button.active{outline:2px solid Highlight}}
 
-/* =========================================================
-   English Haters Visual Redesign
-   Ambient gradients • glassmorphism • hover motion
-   ========================================================= */
+/* English Haters Balanced Redesign START */
 
-:root{
-  --eh-bg-1:#f8f6ff;
-  --eh-bg-2:#eef2ff;
-  --eh-bg-3:#fff8f2;
-  --eh-surface:rgba(255,255,255,.78);
-  --eh-surface-strong:rgba(255,255,255,.92);
-  --eh-line:rgba(126,98,255,.15);
-  --eh-shadow:0 20px 60px rgba(47,35,115,.12);
-  --eh-shadow-soft:0 12px 30px rgba(71,54,165,.10);
-  --eh-accent-1:#6f5bff;
-  --eh-accent-2:#8f7dff;
-  --eh-accent-3:#a784ff;
-  --eh-pink:#ff85d5;
-  --eh-cyan:#64d9ff;
-  --eh-orange:#ffb36b;
-}
-
+/* Keep the original white-card identity; only improve the canvas and depth. */
 html,body{
   min-height:100%;
   background:
-    radial-gradient(circle at 0% 0%, rgba(111,91,255,.16), transparent 32%),
-    radial-gradient(circle at 100% 10%, rgba(255,133,213,.12), transparent 28%),
-    radial-gradient(circle at 20% 100%, rgba(100,217,255,.12), transparent 26%),
-    linear-gradient(180deg, var(--eh-bg-1) 0%, var(--eh-bg-2) 52%, var(--eh-bg-3) 100%);
-  background-attachment: fixed;
+    radial-gradient(circle at 16% 8%, rgba(123,103,255,.08), transparent 30%),
+    radial-gradient(circle at 86% 18%, rgba(174,140,255,.07), transparent 28%),
+    linear-gradient(180deg,#f9f9fd 0%,#f5f6fb 48%,#faf9ff 100%);
+  background-attachment:fixed;
 }
 
 body{
@@ -114,323 +94,120 @@ body{
   overflow-x:hidden;
 }
 
+/* Very subtle ambient decoration — intentionally restrained. */
 body::before,
 body::after{
   content:"";
   position:fixed;
-  inset:auto;
-  width:38rem;
-  height:38rem;
-  border-radius:999px;
-  filter:blur(28px);
-  opacity:.34;
   pointer-events:none;
   z-index:0;
-  animation:ehFloat 18s ease-in-out infinite;
+  border-radius:50%;
+  filter:blur(8px);
+  opacity:.35;
 }
 body::before{
-  top:-10rem;
-  left:-8rem;
-  background:radial-gradient(circle at 30% 30%, rgba(111,91,255,.34), rgba(111,91,255,.10) 45%, transparent 68%);
+  width:320px;
+  height:320px;
+  top:90px;
+  left:-170px;
+  background:radial-gradient(circle,rgba(118,93,255,.10),transparent 68%);
 }
 body::after{
-  right:-10rem;
-  bottom:-10rem;
-  background:radial-gradient(circle at 50% 50%, rgba(255,133,213,.24), rgba(100,217,255,.16) 45%, transparent 70%);
-  animation-duration:22s;
-  animation-direction:alternate;
+  width:360px;
+  height:360px;
+  right:-200px;
+  top:360px;
+  background:radial-gradient(circle,rgba(159,126,255,.08),transparent 70%);
 }
 
-@keyframes ehFloat{
-  0%{transform:translate3d(0,0,0) scale(1)}
-  50%{transform:translate3d(18px,-18px,0) scale(1.06)}
-  100%{transform:translate3d(-8px,12px,0) scale(.98)}
-}
-
-#app, .app, .shell, main, .page{
+#app,.app,.shell,main,.page{
   position:relative;
   z-index:1;
 }
 
+/* Preserve solid white cards — no heavy glass effect. */
 .card,
 .rule,
 .panel,
 .sheet,
-.modal,
-.drawer,
 .quiz-card,
 .topic-card,
 .path-card,
 .exam-card,
 .mission-card,
 .stats-card,
-.profile-card,
-nav.bottom,
-.bottom-nav,
-.nav-shell{
-  background:var(--eh-surface);
-  border:1px solid var(--eh-line);
-  box-shadow:var(--eh-shadow-soft);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+.profile-card{
+  background:#fff;
+  border-color:rgba(39,35,74,.08);
+  box-shadow:0 10px 26px rgba(42,35,89,.055);
 }
 
+/* Slightly stronger emphasis only on meaningful dashboard cards. */
 .card:hover,
-.quiz-card:hover,
 .topic-card:hover,
 .exam-card:hover,
-.mission-card:hover,
-.stats-card:hover,
-.profile-card:hover{
-  transform:translateY(-2px);
-  box-shadow:0 18px 42px rgba(73,58,170,.14);
-  transition:transform .25s ease, box-shadow .25s ease;
+.mission-card:hover{
+  box-shadow:0 14px 34px rgba(53,42,113,.075);
 }
 
-.card,
-.quiz-card,
-.topic-card,
-.exam-card,
-.mission-card,
-.stats-card,
-.profile-card{
-  transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease;
-}
-
-.hero,
-.hero-card,
-.dashboard-hero,
-.spotlight,
-.banner,
-.today-card,
-.welcome-card,
-.main-hero{
-  position:relative;
-  overflow:hidden;
-  background:
-    linear-gradient(135deg, rgba(37,29,100,.96), rgba(88,70,199,.92) 56%, rgba(131,112,255,.88) 100%);
-  color:#fff;
-  border:1px solid rgba(255,255,255,.10);
-  box-shadow:0 24px 70px rgba(43,28,124,.28);
-}
-.hero::before,
-.hero-card::before,
-.dashboard-hero::before,
-.spotlight::before,
-.banner::before,
-.today-card::before,
-.welcome-card::before,
-.main-hero::before{
-  content:"";
-  position:absolute;
-  right:-6rem;
-  top:-4rem;
-  width:18rem;
-  height:18rem;
-  border-radius:999px;
-  background:radial-gradient(circle, rgba(255,255,255,.18), transparent 62%);
-}
-.hero::after,
-.hero-card::after,
-.dashboard-hero::after,
-.spotlight::after,
-.banner::after,
-.today-card::after,
-.welcome-card::after,
-.main-hero::after{
-  content:"";
-  position:absolute;
-  left:-4rem;
-  bottom:-5rem;
-  width:14rem;
-  height:14rem;
-  border-radius:999px;
-  background:radial-gradient(circle, rgba(100,217,255,.18), transparent 60%);
-}
-.hero *,
-.hero-card *,
-.dashboard-hero *,
-.spotlight *,
-.banner *,
-.today-card *,
-.welcome-card *,
-.main-hero *{
-  position:relative;
-  z-index:1;
-}
-
+/* Keep buttons familiar; add a tiny bit of polish. */
 .cta,
-button.cta,
 button,
-.btn,
-.primary-btn,
-.secondary-btn,
-.action-btn{
-  transition:transform .18s ease, box-shadow .25s ease, filter .25s ease, background .25s ease;
-}
-
-.cta.primary,
-button.cta:not(.secondary),
-.btn-primary,
-.primary-btn{
-  background:linear-gradient(135deg, var(--eh-accent-1), var(--eh-accent-3));
-  color:#fff;
-  box-shadow:0 12px 28px rgba(111,91,255,.28);
-  border:0;
-}
-.cta.secondary,
-.btn-secondary{
-  background:rgba(255,255,255,.66);
-  border:1px solid rgba(111,91,255,.16);
-  color:#4331b8;
+.btn{
+  transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
 }
 
 .cta:hover,
 button:hover,
-.btn:hover,
-.primary-btn:hover,
-.secondary-btn:hover,
-.action-btn:hover{
-  transform:translateY(-1px) scale(1.01);
-  filter:saturate(1.05);
+.btn:hover{
+  transform:translateY(-1px);
 }
 
-button:active,
-.cta:active,
-.btn:active{
-  transform:translateY(0) scale(.99);
+/* Accent buttons only — not every surface. */
+.cta:not(.secondary),
+.btn-primary,
+.primary-btn{
+  box-shadow:0 8px 20px rgba(111,91,255,.16);
 }
 
-.badge,
-.chip,
-.eyebrow,
-.pill,
-.tag{
-  background:linear-gradient(135deg, rgba(111,91,255,.14), rgba(143,125,255,.12));
-  color:#5a47d8;
-  border:1px solid rgba(111,91,255,.15);
-}
-
+/* Improve progress bars without changing the design language. */
 .progress,
 .progress-track,
-.meter,
-.bar{
-  background:rgba(111,91,255,.12);
+.meter{
   overflow:hidden;
 }
 .progress > i,
 .progress-fill,
-.meter > i,
-.bar > i{
-  background:linear-gradient(90deg, #7e6aff 0%, #8e7cff 50%, #b486ff 100%);
-  box-shadow:0 0 18px rgba(126,106,255,.35);
+.meter > i{
+  background:linear-gradient(90deg,#7864ff,#9a7dff);
 }
 
-input,
-select,
-textarea{
-  background:rgba(255,255,255,.78);
-  border:1px solid rgba(111,91,255,.14);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
-}
-input:focus,
-select:focus,
-textarea:focus{
-  outline:none;
-  border-color:rgba(111,91,255,.42);
-  box-shadow:0 0 0 4px rgba(111,91,255,.12);
-}
-
-nav,
+/* Keep nav clean and white, just with better separation. */
+.nav,
 .bottom-nav,
-.nav-shell,
-.tabbar{
-  background:rgba(255,255,255,.80);
-  border:1px solid rgba(111,91,255,.16);
-  box-shadow:0 16px 40px rgba(48,34,120,.12);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+nav{
+  box-shadow:0 10px 26px rgba(42,35,89,.07);
 }
 
-.nav-item,
-.bottom-nav a,
-nav a,
-.tab{
-  transition:transform .2s ease, color .2s ease, background .2s ease;
-}
-.nav-item:hover,
-.bottom-nav a:hover,
-nav a:hover,
-.tab:hover{
-  transform:translateY(-1px);
-}
-.nav-item.active,
-.bottom-nav a.active,
-nav a.active,
-.tab.active{
-  background:linear-gradient(135deg, rgba(111,91,255,.14), rgba(180,134,255,.16));
-  color:#5a47d8;
-}
-
-img.avatar,
-.avatar,
-.profile-avatar{
-  box-shadow:0 10px 25px rgba(88,64,180,.20);
-  border:2px solid rgba(255,255,255,.75);
-}
-
-.small-stat,
-.stat,
-.kpi,
-.metric{
-  position:relative;
-  overflow:hidden;
-}
-.small-stat::after,
-.stat::after,
-.kpi::after,
-.metric::after{
-  content:"";
-  position:absolute;
-  right:-24px;
-  top:-24px;
-  width:90px;
-  height:90px;
-  border-radius:50%;
-  background:radial-gradient(circle, rgba(111,91,255,.12), transparent 70%);
-}
-
-.section-title,
-h1,h2,h3{
-  letter-spacing:-.02em;
-}
-
+/* Soft section entry motion only. */
 @media (prefers-reduced-motion:no-preference){
   .card,
-  .quiz-card,
+  .rule,
   .topic-card,
   .exam-card,
-  .mission-card,
-  .stats-card,
-  .profile-card{
-    animation:ehFadeUp .45s ease both;
+  .mission-card{
+    animation:ehBalancedIn .28s ease both;
   }
-  .card:nth-child(2){animation-delay:.04s}
-  .card:nth-child(3){animation-delay:.08s}
-  .card:nth-child(4){animation-delay:.12s}
 }
-@keyframes ehFadeUp{
-  from{opacity:0;transform:translateY(10px)}
+@keyframes ehBalancedIn{
+  from{opacity:.72;transform:translateY(5px)}
   to{opacity:1;transform:translateY(0)}
 }
 
-@media (max-width: 700px){
-  body::before, body::after{
-    width:26rem;
-    height:26rem;
-    filter:blur(22px);
-    opacity:.28;
-  }
+@media(max-width:700px){
+  body::before{width:240px;height:240px;left:-150px}
+  body::after{width:260px;height:260px;right:-170px}
 }
 
-/* End English Haters Visual Redesign */
+/* English Haters Balanced Redesign END */
+

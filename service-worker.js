@@ -1,4 +1,4 @@
-﻿const CACHE='english-haters-v14-visual-redesign';
+﻿const CACHE='english-haters-v15-balanced-redesign';
 const CORE=['./','styles.css','app.js','backend.js','data/curriculum.js','data/questions.js','data/lessons.js','manifest.webmanifest','admin.html','admin.css','admin.js','cloud-admin.html','cloud-admin.js','privacy.html','terms.html','launch.html','launch.js','question-import-template.csv','lesson-import-template.csv'];
 
 self.addEventListener('install',event=>event.waitUntil(
@@ -27,4 +27,5 @@ self.addEventListener('fetch',event=>{
   if(dynamic){event.respondWith(networkFirst(event.request));return}
   event.respondWith(caches.match(event.request).then(hit=>hit||fetch(event.request).then(async response=>{if(response.ok){const cache=await caches.open(CACHE);cache.put(event.request,response.clone())}return response})));
 });
+
 
