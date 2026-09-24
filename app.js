@@ -1,4 +1,4 @@
-﻿const state = {
+const state = {
   view:'home',
   track:localStorage.getItem('eh_track')||'ssc',
   topic:'article',
@@ -25,13 +25,29 @@ let cloudSyncTimer=null;
 let passwordRecoveryMode=new URLSearchParams(location.search).get('recovery')==='1';
 let deferredInstallPrompt=null;
 let lastRenderedView=null;
+let deviceWatchTimer=null;
+let deviceWatchBusy=false;
+let deviceEvictionNotice='';
 
-const tracks = {
-  junior:{name:'Class 6–8',icon:'🌱',desc:'Build the foundation'},
-  ssc:{name:'SSC',icon:'🎯',desc:'Board-focused grammar'},
-  hsc:{name:'HSC',icon:'📘',desc:'Advanced board practice'},
-  admission:{name:'Admission',icon:'🚀',desc:'Engineering + Varsity'}
-};
+const curriculum = window.EH_CURRICULUM || {tracks:{}};
+const tracks = Object.keys(curriculum.tracks||{}).length
+  ? Object.fromEntries(Object.entries(curriculum.tracks).map(([k,v])=>[k,{name:v.name,icon:v.icon,desc:v.desc}]))
+  : {
+      junior:{name:'Class 6–8',icon:'🌱',desc:'Build the foundation'},
+      ssc:{name:'SSC',icon:'🎯',desc:'Board-focused English'},
+      hsc:{name:'HSC',icon:'📘',desc:'Advanced board English'},
+      engineering:{name:'Engineering Admission',icon:'⚙️',desc:'Engineering English'},
+      university:{name:'University Admission',icon:'🚀',desc:'Varsity admission English'}
+    };
+function canonicalTrack(track){return curriculum.legacy_track_map?.[track]||track}
+function normalizeLegacyProgress(){
+  state.track=canonicalTrack(state.track);if(!tracks[state.track])state.track='ssc';
+  state.history=state.history.map(h=>({...h,track:canonicalTrack(h.track)}));
+  state.examHistory=state.examHistory.map(h=>({...h,track:canonicalTrack(h.track)}));
+  const migrated={};Object.entries(state.mistakes||{}).forEach(([key,v])=>{const track=canonicalTrack(v?.track||String(key).split(':')[0]);const id=String(key).includes(':')?String(key).slice(String(key).indexOf(':')+1):String(v?.id||key);migrated[`${track}:${id}`]={...v,track}});state.mistakes=migrated;
+  localStorage.setItem('eh_track',state.track);
+}
+normalizeLegacyProgress();
 
 const $ = s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -45,7 +61,7 @@ function initials(name){const parts=String(name||'EH').trim().split(/\s+/).filte
 function avatarSrc(){return String(activeProfile().avatar_url||activeProfile().avatar||'')}
 function avatarHtml(cls='avatar'){const src=avatarSrc();return src?`<div class="${cls}"><img src="${esc(src)}" alt="Profile photo"></div>`:`<div class="${cls}">${esc(initials(activeProfile().name))}</div>`}
 function progressPayload(){return {xp:state.xp,track:state.track,history:state.history.slice(-5000),mistakes:state.mistakes,practiceDays:state.practiceDays.slice(-400),examHistory:state.examHistory.slice(-100),achievements:[...new Set(state.achievements)]}}
-function applyProgress(p){if(!p)return;state.xp=Number(p.xp||0);state.history=Array.isArray(p.history_json)?p.history_json:[];state.mistakes=p.mistakes_json&&typeof p.mistakes_json==='object'?p.mistakes_json:{};state.practiceDays=Array.isArray(p.practice_days_json)?p.practice_days_json:[];state.examHistory=Array.isArray(p.exam_history_json)?p.exam_history_json:[];state.achievements=Array.isArray(p.achievements_json)?p.achievements_json:[]}
+function applyProgress(p){if(!p)return;state.xp=Number(p.xp||0);state.history=Array.isArray(p.history_json)?p.history_json:[];state.mistakes=p.mistakes_json&&typeof p.mistakes_json==='object'?p.mistakes_json:{};state.practiceDays=Array.isArray(p.practice_days_json)?p.practice_days_json:[];state.examHistory=Array.isArray(p.exam_history_json)?p.exam_history_json:[];state.achievements=Array.isArray(p.achievements_json)?p.achievements_json:[];normalizeLegacyProgress()}
 function clearProgress(){state.xp=0;state.history=[];state.mistakes={};state.practiceDays=[];state.examHistory=[];state.achievements=[];localStorage.removeItem('eh_xp');localStorage.removeItem('eh_history');localStorage.removeItem('eh_mistakes');localStorage.removeItem('eh_practice_days');localStorage.removeItem('eh_exam_history');localStorage.removeItem('eh_achievements')}
 function scheduleCloudSync(){if(!window.EHBackend?.enabled||!state.account.user)return;clearTimeout(cloudSyncTimer);cloudSyncTimer=setTimeout(async()=>{try{state.account.syncing=true;await EHBackend.pushProgress(progressPayload());state.account.syncing=false;if(state.view==='profile')render()}catch(e){state.account.syncing=false;state.account.error=`Sync failed: ${e.message}`;if(state.view==='profile')render()}},900)}
 async function compressAvatarFile(file){
@@ -59,8 +75,8 @@ async function compressAvatarFile(file){
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.84));if(!blob)throw new Error('Could not process that image.');
   const dataUrl=canvas.toDataURL('image/jpeg',.76);return {blob,dataUrl};
 }
-function questions(){return dedupeRows([...(window.EH_QUESTIONS||[]),...safeArray('eh_custom_questions'),...state.cloudQuestions]).filter(q=>q.published!==false)}
-function lessons(){return dedupeRows([...(window.EH_LESSONS||[]),...safeArray('eh_custom_lessons'),...state.cloudLessons]).filter(l=>l.published!==false)}
+function questions(){return dedupeRows([...(window.EH_QUESTIONS||[]),...safeArray('eh_custom_questions'),...state.cloudQuestions].map(q=>({...q,track:canonicalTrack(q.track)}))).filter(q=>q.published!==false)}
+function lessons(){return dedupeRows([...(window.EH_LESSONS||[]),...safeArray('eh_custom_lessons'),...state.cloudLessons].map(l=>({...l,track:canonicalTrack(l.track)}))).filter(l=>l.published!==false)}
 function humanTopic(slug){return String(slug||'').split('-').map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(' ')}
 function getLesson(track,topic){const matching=lessons().filter(l=>l.track===track&&l.topic===topic);return matching[matching.length-1]||null}
 function getTopics(track){
@@ -157,6 +173,7 @@ function weekStats(){
   const keys=new Set(weekSnapshot().map(x=>x.key));const rows=state.history.filter(h=>keys.has(dayKey(new Date(h.ts))));const correct=rows.filter(h=>h.correct).length;return {attempts:rows.length,accuracy:rows.length?Math.round(correct/rows.length*100):0,activeDays:weekSnapshot().filter(x=>x.active).length};
 }
 function activeMistakeCount(track=null){return Object.values(state.mistakes).filter(m=>!track||String(m.key||'').startsWith(`${track}:`)).length}
+function plannedTopicCount(track=state.track){return (curriculum.tracks?.[track]?.modules||[]).reduce((n,m)=>n+(m.topics||[]).length,0)}
 function recommendedTopic(track=state.track){
   const topics=getTopics(track);if(!topics.length)return null;
   const attempted=topics.map(t=>({t,s:getTopicStats(track,t.slug)})).filter(x=>x.s.attempts>0).sort((a,b)=>a.s.mastery-b.s.mastery||b.s.attempts-a.s.attempts);
@@ -165,7 +182,7 @@ function recommendedTopic(track=state.track){
 function recommendation(){
   const mistakes=activeMistakeCount(state.track);if(mistakes)return {kind:'mistakes',icon:'🧠',title:'Review your mistakes',text:`${mistakes} active mistake${mistakes===1?'':'s'} can be turned into mastery.`,button:'Revise mistakes'};
   const t=recommendedTopic(state.track);if(t){const stats=getTopicStats(state.track,t.slug);return {kind:'topic',topic:t.slug,icon:stats.attempts?'🎯':'📖',title:stats.attempts?`Strengthen ${t.title}`:`Start ${t.title}`,text:stats.attempts?`${stats.mastery}% mastery • ${stats.accuracy}% accuracy`:'Read the rule, then practice a short set.',button:stats.attempts?'Practice weak topic':'Learn this topic'}}
-  return {kind:'random',icon:'⚡',title:'Start with five questions',text:'A short session is enough to keep your learning moving.',button:'Start practice'};
+  const planned=plannedTopicCount(state.track);return planned?{kind:'learn',icon:'🗺️',title:`${planned} topics mapped for this path`,text:'The curriculum is ready. Published lessons and questions will appear here after founder review.',button:'View learning path'}:{kind:'random',icon:'⚡',title:'Start with five questions',text:'A short session is enough to keep your learning moving.',button:'Start practice'};
 }
 function greeting(){const h=new Date().getHours();return h<12?'Good morning':h<18?'Good afternoon':'Good evening'}
 function save(){
@@ -211,54 +228,18 @@ function home(){
   <div class="card milestone-card"><div class="milestone-icon">${milestone.icon}</div><div><span class="eyebrow">Next milestone</span><h3>${esc(milestone.title)}</h3><div class="progress tiny"><i style="width:${milestone.percent}%"></i></div><small>${Math.min(milestone.value,milestone.target)}/${milestone.target}</small></div></div>
   <div class="section-head"><h2>This week</h2><small>${week.activeDays}/7 active days</small></div><div class="card week-card"><div class="week-strip">${weekDays.map(d=>`<div class="week-day ${d.active?'active':''} ${d.today?'today':''}"><span>${d.label}</span><i>${d.active?'✓':'·'}</i></div>`).join('')}</div><div class="week-meta"><span><b>${week.attempts}</b> answers</span><span><b>${week.accuracy}%</b> accuracy</span><span><b>${activeMistakeCount()}</b> mistakes</span></div></div>
   <div class="section-head"><h2>Badges</h2><small>${unlocked.length}/${ach.length} unlocked</small></div><div class="badge-peek">${ach.slice(0,6).map(a=>`<div class="badge-chip ${a.unlocked?'unlocked':'locked'}" title="${esc(a.text)}"><span>${a.unlocked?a.icon:'🔒'}</span><b>${esc(a.title)}</b></div>`).join('')}</div><button class="text-link center-link" data-v="profile">View all achievements →</button>
-  <div class="section-head"><h2>Your learning paths</h2><small>Tap to continue</small></div><div class="grid path-grid">${Object.entries(tracks).map(([k,t])=>{const m=trackMastery(k);return `<button class="card track path-card ${state.track===k?'current':''}" data-track="${k}"><div class="path-top"><div class="icon">${t.icon}</div>${state.track===k?'<span class="current-badge">Current</span>':''}</div><h3>${t.name}</h3><p>${t.desc}</p><div class="progress"><i style="width:${m}%"></i></div><small class="mastery-label">${m}% mastery</small></button>`}).join('')}</div>`
+  <div class="section-head"><h2>Your learning paths</h2><small>Tap to continue</small></div><div class="grid path-grid">${Object.entries(tracks).map(([k,t])=>{const m=trackMastery(k);return `<button class="card track path-card ${state.track===k?'current':''}" data-track="${k}"><div class="path-top"><div class="icon">${t.icon}</div>${state.track===k?'<span class="current-badge">Current</span>':''}</div><h3>${t.name}</h3><p>${t.desc}</p><div class="progress"><i style="width:${m}%"></i></div><small class="mastery-label">${getTopics(k).length?`${m}% mastery`:`${plannedTopicCount(k)} topics mapped`}</small></button>`}).join('')}</div>`
 }
 
 function learn(){
   const t=tracks[state.track],list=getTopics(state.track),mastery=trackMastery(state.track),rec=recommendedTopic(state.track);
   return `${header()}<div class="page-head-row"><div><span class="eyebrow">Learning path</span><h1 class="page-title">${t.icon} ${t.name}</h1><p class="sub">Read a short rule, see an example, then practice immediately.</p></div><div class="path-score"><b>${mastery}%</b><span>mastery</span></div></div>${trackSwitcher()}
   ${rec?`<div class="card learn-next"><div><span class="eyebrow">Continue here</span><h3>${esc(rec.title)}</h3><p>${getTopicStats(state.track,rec.slug).attempts?`${getTopicStats(state.track,rec.slug).attempts} attempts • ${getTopicStats(state.track,rec.slug).accuracy}% accuracy`:'New topic • start with the rule'}</p></div><button class="small-action" data-topic="${esc(rec.slug)}">Open →</button></div>`:''}
-  <div class="section-head"><h2>Topics</h2><small>${list.length} in this path</small></div>${list.length?`<div class="lesson-list path-list">${list.map((item,i)=>{const s=getTopicStats(state.track,item.slug),status=s.mastery>=80?'Strong':s.attempts?'In progress':'New';return `<button class="card lesson path-lesson" data-topic="${esc(item.slug)}"><div class="n ${s.mastery>=80?'complete':''}">${s.mastery>=80?'✓':i+1}</div><div class="lesson-copy"><div class="lesson-title-row"><h4>${esc(item.title)}</h4><span class="topic-status ${status==='Strong'?'strong':status==='In progress'?'progressing':''}">${status}</span></div><p>Rule → Example → Practice</p><div class="progress tiny"><i style="width:${s.mastery}%"></i></div><small>${s.attempts?`${s.mastery}% mastery • ${s.attempts} attempts`:'Not practiced yet'}</small></div><div class="arrow">›</div></button>`}).join('')}</div>`:'<div class="card empty"><h3>No topics yet</h3><p>Published lessons for this path will appear here.</p></div>'}`
+  <div class="section-head"><h2>Topics</h2><small>${list.length} live • ${plannedTopicCount(state.track)} mapped</small></div>${list.length?`<div class="lesson-list path-list">${list.map((item,i)=>{const s=getTopicStats(state.track,item.slug),status=s.mastery>=80?'Strong':s.attempts?'In progress':'New';return `<button class="card lesson path-lesson" data-topic="${esc(item.slug)}"><div class="n ${s.mastery>=80?'complete':''}">${s.mastery>=80?'✓':i+1}</div><div class="lesson-copy"><div class="lesson-title-row"><h4>${esc(item.title)}</h4><span class="topic-status ${status==='Strong'?'strong':status==='In progress'?'progressing':''}">${status}</span></div><p>Rule → Example → Practice</p><div class="progress tiny"><i style="width:${s.mastery}%"></i></div><small>${s.attempts?`${s.mastery}% mastery • ${s.attempts} attempts`:'Not practiced yet'}</small></div><div class="arrow">›</div></button>`}).join('')}</div>`:`<div class="card empty"><h3>Curriculum mapped</h3><p>${plannedTopicCount(state.track)} planned topics are ready in the Founder Curriculum Map. Student lessons will appear here only after they are written, reviewed and published.</p></div>`}`
 }
 function rule(){
-  const l=getLesson(state.track,state.topic);
-  const title=l?.title||humanTopic(state.topic);
-  const ruleText=l?.rule||'A short lesson has not been added yet. You can still practice the available questions for this topic.';
-  const examples=Array.isArray(l?.examples)?l.examples:[];
-  const sections=Array.isArray(l?.sections)?l.sections:[];
-  const stats=getTopicStats(state.track,state.topic);
-
-  const sectionHtml=sections.length?`<div class="lesson-sections">${sections.map((s,i)=>{
-    const ex=Array.isArray(s.examples)?s.examples:[];
-    return `<section class="lesson-section">
-      <div class="lesson-section-head">
-        <span class="lesson-step">${String(i+1).padStart(2,'0')}</span>
-        <div>
-          ${s.tag?`<span class="lesson-tag">${esc(s.tag)}</span>`:''}
-          <h3>${esc(s.title||`Section ${i+1}`)}</h3>
-        </div>
-      </div>
-      <div class="lesson-section-body">${esc(s.body||'')}</div>
-      ${ex.length?`<div class="lesson-examples"><b>Examples</b>${ex.map(x=>`<div>${esc(x)}</div>`).join('')}</div>`:''}
-      ${s.tip?`<div class="lesson-tip"><b>💡 মনে রাখো</b><span>${esc(s.tip)}</span></div>`:''}
-    </section>`;
-  }).join('')}</div>`:'';
-
-  return `${header()}
-    <button class="cta secondary" id="backLearn">← Back to topics</button>
-    <div style="height:12px"></div>
-    <div class="card rule lesson-reader">
-      <div class="eyebrow">Learn • ${esc(tracks[state.track]?.name||state.track)}</div>
-      <h2>${esc(title)}</h2>
-      <p class="lesson-intro">${esc(ruleText)}</p>
-      ${sectionHtml}
-      ${!sections.length&&examples.length?`<div class="example"><b>Example${examples.length>1?'s':''}</b><br>${examples.map(esc).join(' • ')}</div>`:''}
-      <div class="mastery-box">
-        <div><b>${stats.mastery}% mastery</b><span>${stats.attempts} attempts • ${stats.accuracy}% accuracy</span></div>
-        <div class="progress"><i style="width:${stats.mastery}%"></i></div>
-      </div>
-      <button class="cta" id="practiceTopic">Practice this topic</button>
-    </div>`;
+  const l=getLesson(state.track,state.topic);const title=l?.title||humanTopic(state.topic);const ruleText=l?.rule||'A short lesson has not been added yet. You can still practice the available questions for this topic.';const examples=Array.isArray(l?.examples)?l.examples:[];const stats=getTopicStats(state.track,state.topic);
+  return `${header()}<button class="cta secondary" id="backLearn">← Back to topics</button><div style="height:12px"></div><div class="card rule"><div class="eyebrow">Learn</div><h2>${esc(title)}</h2><p>${esc(ruleText)}</p>${examples.length?`<div class="example"><b>Example${examples.length>1?'s':''}</b><br>${examples.map(esc).join(' • ')}</div>`:''}<div class="mastery-box"><div><b>${stats.mastery}% mastery</b><span>${stats.attempts} attempts • ${stats.accuracy}% accuracy</span></div><div class="progress"><i style="width:${stats.mastery}%"></i></div></div><button class="cta" id="practiceTopic">Practice this topic</button></div>`
 }
 function trackSwitcher(){return `<div class="segment">${Object.entries(tracks).map(([k,t])=>`<button data-practice-track="${k}" class="${state.track===k?'active':''}">${t.icon} ${t.name}</button>`).join('')}</div>`}
 function practiceHub(){
@@ -405,12 +386,12 @@ function tutorPaper(config){const qs=buildQuiz(config);if(!qs.length){alert('No 
 function accountPanel(){
   const a=state.account,p=activeProfile(),cloud=Boolean(window.EHBackend?.enabled);
   if(cloud&&a.loading)return `<div class="card account-card"><div class="account-status"><span class="status-dot"></span><div><h3>Connecting your account…</h3><p>Checking cloud profile and progress.</p></div></div></div>`;
-  if(cloud&&!a.user)return `<div class="card account-card"><div class="account-title"><div><div class="eyebrow">Cloud account</div><h2>Save your progress on every device</h2><p>Register or sign in. Your streak, XP, mistakes and profile photo can follow you.</p></div><span class="cloud-badge">☁ Ready</span></div>${a.error?`<div class="account-alert bad">${esc(a.error)}</div>`:''}${a.message?`<div class="account-alert good">${esc(a.message)}</div>`:''}<div class="auth-grid"><form id="signInForm" class="auth-box"><h3>Sign in</h3><label>Email<input type="email" name="email" autocomplete="email" required placeholder="student@example.com"></label><label>Password<input type="password" name="password" autocomplete="current-password" required minlength="6"></label><button class="cta" type="submit">Sign in</button><button class="auth-link" id="showReset" type="button">Forgot password?</button></form><form id="signUpForm" class="auth-box"><h3>Create account</h3><label>Name<input name="name" autocomplete="name" required maxlength="80" placeholder="Your name"></label><label>Email<input type="email" name="email" autocomplete="email" required placeholder="student@example.com"></label><label>Password<input type="password" name="password" autocomplete="new-password" required minlength="6" placeholder="Minimum 6 characters"></label><button class="cta secondary" type="submit">Create free account</button></form></div><form id="resetPasswordForm" class="reset-box hidden"><b>Reset your password</b><p>Enter the email used for English Haters. We will send a secure recovery link.</p><div class="reset-row"><input type="email" name="email" required placeholder="student@example.com"><button class="small-action" type="submit">Send link</button></div></form><p class="micro-note">Beta device policy: maximum ${Number(window.EH_BACKEND_CONFIG?.maxDevices||2)} registered devices per account.</p></div>`;
+  if(cloud&&!a.user)return `<div class="card account-card"><div class="account-title"><div><div class="eyebrow">Cloud account</div><h2>Save your progress on every device</h2><p>Register or sign in. Your streak, XP, mistakes and profile photo can follow you.</p></div><span class="cloud-badge">☁ Ready</span></div>${a.error?`<div class="account-alert bad">${esc(a.error)}</div>`:''}${a.message?`<div class="account-alert good">${esc(a.message)}</div>`:''}<div class="auth-grid"><form id="signInForm" class="auth-box"><h3>Sign in</h3><label>Email<input type="email" name="email" autocomplete="email" required placeholder="student@example.com"></label><label>Password<input type="password" name="password" autocomplete="current-password" required minlength="6"></label><button class="cta" type="submit">Sign in</button><button class="auth-link" id="showReset" type="button">Forgot password?</button></form><form id="signUpForm" class="auth-box"><h3>Create account</h3><label>Name<input name="name" autocomplete="name" required maxlength="80" placeholder="Your name"></label><label>Email<input type="email" name="email" autocomplete="email" required placeholder="student@example.com"></label><label>Password<input type="password" name="password" autocomplete="new-password" required minlength="6" placeholder="Minimum 6 characters"></label><button class="cta secondary" type="submit">Create free account</button></form></div><form id="resetPasswordForm" class="reset-box hidden"><b>Reset your password</b><p>Enter the email used for English Haters. We will send a secure recovery link.</p><div class="reset-row"><input type="email" name="email" required placeholder="student@example.com"><button class="small-action" type="submit">Send link</button></div></form><p class="micro-note">Device policy: up to ${Number(window.EH_BACKEND_CONFIG?.maxDevices||2)} devices. Signing in on a new device automatically signs out the oldest one.</p></div>`;
   if(cloud&&a.user&&passwordRecoveryMode)return `<div class="card account-card"><div class="account-title"><div><div class="eyebrow">Account recovery</div><h2>Choose a new password</h2><p>Your recovery link was accepted. Set a new password to finish.</p></div><span class="cloud-badge">🔐 Secure</span></div>${a.error?`<div class="account-alert bad">${esc(a.error)}</div>`:''}${a.message?`<div class="account-alert good">${esc(a.message)}</div>`:''}<form id="updatePasswordForm" class="auth-box recovery-form"><label>New password<input type="password" name="password" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters"></label><label>Confirm password<input type="password" name="confirm" autocomplete="new-password" minlength="8" required></label><button class="cta" type="submit">Update password</button></form></div>`;
   const profilePhoto=`<div class="profile-photo-wrap">${avatarHtml('profile-photo')}<label class="photo-action">📷 ${avatarSrc()?'Change photo':'Add photo'}<input id="avatarInput" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>${avatarSrc()?'<button class="photo-remove" id="removeAvatar" type="button">Remove</button>':''}</div>`;
   if(!cloud)return `<div class="card account-card"><div class="profile-editor">${profilePhoto}<form id="localProfileForm" class="profile-fields"><div><div class="eyebrow">Local Beta profile</div><h2>${esc(p.name)}</h2><p>Your photo is stored only in this browser for now.</p></div><label>Display name<input name="name" maxlength="80" value="${esc(p.name)}" required></label><button class="cta" type="submit">Save profile</button></form></div>${a.error?`<div class="account-alert bad">${esc(a.error)}</div>`:''}${a.message?`<div class="account-alert good">${esc(a.message)}</div>`:''}<div class="local-cloud-note"><b>☁ Cloud mode is ready in the code.</b><span>Complete SETUP-SUPABASE.md when you want real registration, photo storage and multi-device sync.</span></div>${deferredInstallPrompt?'<button class="cta secondary install-app" id="installApp" type="button">📲 Install English Haters</button>':''}<div class="legal-links"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div></div>`;
   const devices=(a.devices||[]).map(d=>`<div class="device-row"><div><b>${d.current?'📍 ':''}${esc(d.device_name||'Browser')}</b><span>${d.current?'Current device • ':''}Last used ${new Date(d.last_seen_at||d.created_at).toLocaleDateString()}</span></div>${d.current?'<span class="tag green">Current</span>':`<button class="small-action danger-lite" data-remove-device="${esc(d.id)}">Remove</button>`}</div>`).join('')||'<div class="empty mini">No registered devices found.</div>';
-  return `<div class="card account-card"><div class="profile-editor">${profilePhoto}<form id="cloudProfileForm" class="profile-fields"><div><div class="eyebrow">Student account</div><h2>${esc(p.name||'English Hater')}</h2><p>${esc(p.email||a.user?.email||'')}</p></div><label>Display name<input name="name" maxlength="80" value="${esc(p.name||'')}" required></label><button class="cta" type="submit">Save profile</button></form></div>${a.error?`<div class="account-alert bad">${esc(a.error)}</div>`:''}${a.message?`<div class="account-alert good">${esc(a.message)}</div>`:''}<div class="sync-row"><span><b>${a.syncing?'Syncing…':'☁ Cloud sync active'}</b><small>Progress is backed up to your account.</small></span><button class="small-action" id="syncNow">Sync now</button></div><div class="section-head compact"><h3>Registered devices</h3><small>${a.devices.length}/${Number(window.EH_BACKEND_CONFIG?.maxDevices||2)}</small></div><div class="device-list">${devices}</div><button class="cta secondary" id="signOut" type="button">Sign out</button>${deferredInstallPrompt?'<button class="cta secondary install-app" id="installApp" type="button">📲 Install English Haters</button>':''}<div class="legal-links"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div></div>`;
+  return `<div class="card account-card"><div class="profile-editor">${profilePhoto}<form id="cloudProfileForm" class="profile-fields"><div><div class="eyebrow">Student account</div><h2>${esc(p.name||'English Hater')}</h2><p>${esc(p.email||a.user?.email||'')}</p></div><label>Display name<input name="name" maxlength="80" value="${esc(p.name||'')}" required></label><button class="cta" type="submit">Save profile</button></form></div>${a.error?`<div class="account-alert bad">${esc(a.error)}</div>`:''}${a.message?`<div class="account-alert good">${esc(a.message)}</div>`:''}<div class="sync-row"><span><b>${a.syncing?'Syncing…':'☁ Cloud sync active'}</b><small>Progress is backed up to your account.</small></span><button class="small-action" id="syncNow">Sync now</button></div><div class="section-head compact"><h3>Registered devices</h3><small>${a.devices.length}/${Number(window.EH_BACKEND_CONFIG?.maxDevices||2)}</small></div><p class="micro-note device-policy-note">A third-device sign-in automatically removes the oldest registered device.</p><div class="device-list">${devices}</div><button class="cta secondary" id="signOut" type="button">Sign out</button>${deferredInstallPrompt?'<button class="cta secondary install-app" id="installApp" type="button">📲 Install English Haters</button>':''}<div class="legal-links"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div></div>`;
 }
 function profile(){
   const correct=state.history.filter(x=>x.correct).length,accuracy=state.history.length?Math.round(correct/state.history.length*100):0,week=weekStats(),li=levelInfo(),missions=missionData(),ach=achievementCatalog(),unlocked=ach.filter(x=>x.unlocked),milestone=milestoneData();
@@ -431,14 +412,17 @@ function profile(){
 
 async function refreshAccount({initial=false}={}){
   const backend=window.EHBackend;
-  if(!backend?.enabled){state.account={...state.account,loading:false,user:null,profile:null,devices:[]};if(initial)render();return}
+  if(!backend?.enabled){stopDeviceWatch();state.account={...state.account,loading:false,user:null,profile:null,devices:[]};if(initial)render();return}
   state.account.loading=true;if(state.view==='profile')render();
   try{
     const content=await backend.loadContent();state.cloudQuestions=content.questions||[];state.cloudLessons=content.lessons||[];
     const sess=await backend.session();
-    if(!sess?.user){state.account={...state.account,loading:false,user:null,profile:null,devices:[],error:''};if(initial||state.view==='profile')render();return}
-    const reg=await backend.registerDevice();
-    if(!reg?.allowed){await backend.signOut();clearProgress();state.account={loading:false,user:null,profile:null,devices:[],message:'',error:`Device limit reached. Remove an old device from another signed-in device before using this one.`,syncing:false};render();return}
+    if(!sess?.user){stopDeviceWatch();state.account={...state.account,loading:false,user:null,profile:null,devices:[],message:'',error:deviceEvictionNotice||'',syncing:false};if(initial||state.view==='profile'||deviceEvictionNotice)render();return}
+    let device=await backend.currentDeviceStatus();
+    if(!device.registered){
+      try{device=await backend.ensureProtectedDevice()}
+      catch{await handleDeviceEviction();return}
+    }
     state.account.user=sess.user;
     const [profileData,devices,cloudProgress]=await Promise.all([backend.getProfile(),backend.listDevices(),backend.pullProgress()]);
     const marker=localStorage.getItem('eh_cloud_user_id');const localHas=state.xp>0||state.history.length>0||state.practiceDays.length>0;
@@ -447,16 +431,33 @@ async function refreshAccount({initial=false}={}){
     else if(marker&&marker!==sess.user.id){clearProgress();}
     localStorage.setItem('eh_cloud_user_id',sess.user.id);saveWithoutCloud();
     state.account={loading:false,user:sess.user,profile:profileData,devices,message:initial?'Cloud account connected.':'',error:'',syncing:false};
+    startDeviceWatch();
   }catch(e){state.account.loading=false;state.account.error=e.message||String(e)}
   chooseDefaultTopic();backfillAchievements();render();
 }
+async function handleDeviceEviction(){
+  if(deviceWatchBusy)return;deviceWatchBusy=true;stopDeviceWatch();
+  deviceEvictionNotice='This device was signed out because your account was used on a newer device. You can sign in again, but that will rotate out the oldest active device.';
+  try{await window.EHBackend?.signOut('local')}catch{}
+  clearProgress();saveWithoutCloud();localStorage.removeItem('eh_cloud_user_id');
+  state.account={loading:false,user:null,profile:null,devices:[],message:'',error:deviceEvictionNotice,syncing:false};
+  deviceWatchBusy=false;render();
+}
+async function checkCurrentDevice(){
+  if(deviceWatchBusy||!window.EHBackend?.enabled||!state.account.user||document.hidden||!navigator.onLine)return;
+  deviceWatchBusy=true;
+  try{const status=await window.EHBackend.currentDeviceStatus();if(!status.registered){deviceWatchBusy=false;await handleDeviceEviction();return}}
+  catch{}finally{deviceWatchBusy=false}
+}
+function startDeviceWatch(){stopDeviceWatch();if(state.account.user)deviceWatchTimer=setInterval(checkCurrentDevice,15000)}
+function stopDeviceWatch(){if(deviceWatchTimer){clearInterval(deviceWatchTimer);deviceWatchTimer=null}}
 function saveWithoutCloud(){
   localStorage.setItem('eh_xp',state.xp);localStorage.setItem('eh_track',state.track);localStorage.setItem('eh_history',JSON.stringify(state.history.slice(-5000)));localStorage.setItem('eh_mistakes',JSON.stringify(state.mistakes));localStorage.setItem('eh_practice_days',JSON.stringify(state.practiceDays.slice(-400)));localStorage.setItem('eh_exam_history',JSON.stringify(state.examHistory.slice(-100)));localStorage.setItem('eh_achievements',JSON.stringify([...new Set(state.achievements)]));
 }
 async function initBackend(){
   if(!window.EHBackend?.enabled){state.account.loading=false;render();return}
   await refreshAccount({initial:true});
-  window.EHBackend.onAuthChange((_session,event)=>{if(event==='PASSWORD_RECOVERY'){passwordRecoveryMode=true;state.view='profile';}clearTimeout(window.__ehAuthTimer);window.__ehAuthTimer=setTimeout(()=>refreshAccount(),120)});
+  window.EHBackend.onAuthChange((_session,event)=>{clearTimeout(window.__ehAuthTimer);window.__ehAuthTimer=setTimeout(async()=>{if(event==='PASSWORD_RECOVERY'){passwordRecoveryMode=true;state.view='profile';try{await window.EHBackend.registerDevice({rotate:true})}catch{}}await refreshAccount()},180)});
 }
 function render(){
   clearInterval(examTimer);const viewChanged=lastRenderedView!==state.view;let body;if(state.view==='home')body=home();else if(state.view==='learn')body=learn();else if(state.view==='rule')body=rule();else if(state.view==='practiceHub')body=practiceHub();else if(state.view==='quiz')body=quiz();else if(state.view==='result')body=result();else if(state.view==='examHub')body=examHub();else if(state.view==='exam')body=exam();else if(state.view==='examResult')body=examResult();else if(state.view==='questionBank')body=questionBank();else if(state.view==='omr')body=omr();else body=profile();
@@ -489,13 +490,13 @@ function bind(){
   document.querySelectorAll('[data-topic]').forEach(b=>b.onclick=()=>{state.topic=b.dataset.topic;state.view='rule';render()});
   document.querySelectorAll('[data-practice-track]').forEach(b=>b.onclick=()=>{state.track=b.dataset.practiceTrack;state.qbSecureLoaded=false;state.qbSecureRows=[];chooseDefaultTopic();save();render()});
   document.querySelectorAll('[data-start-topic]').forEach(b=>b.onclick=()=>startQuiz({mode:'topic',track:state.track,topic:b.dataset.startTopic,count:'all',label:`${topicTitle(state.track,b.dataset.startTopic)} Practice`}));
-  const quick=$('#quick');if(quick)quick.onclick=()=>startQuiz({mode:'random',track:state.track,count:5,label:'Daily Random'});
-  const quickHub=$('#quickHub');if(quickHub)quickHub.onclick=()=>startQuiz({mode:'random',track:state.track,count:5,label:'Quick Random'});
+  const quick=$('#quick');if(quick)quick.onclick=()=>{if(!questions().some(q=>q.track===state.track)){state.view='learn';render();return}startQuiz({mode:'random',track:state.track,count:5,label:'Daily Random'})};
+  const quickHub=$('#quickHub');if(quickHub)quickHub.onclick=()=>{if(!questions().some(q=>q.track===state.track)){state.view='learn';render();return}startQuiz({mode:'random',track:state.track,count:5,label:'Quick Random'})};
   const showCustom=$('#showCustom');if(showCustom)showCustom.onclick=()=>$('#customBuilder')?.classList.remove('hidden');
   const hideCustom=$('#hideCustom');if(hideCustom)hideCustom.onclick=()=>$('#customBuilder')?.classList.add('hidden');
   const custom=$('#customForm');if(custom)custom.onsubmit=e=>{e.preventDefault();const d=new FormData(custom);startQuiz({mode:'custom',track:state.track,topic:d.get('topic'),difficulty:d.get('difficulty'),count:d.get('count'),label:'Custom Practice'})};
   const pm=$('#practiceMistakes');if(pm)pm.onclick=()=>startQuiz({mode:'mistakes',track:state.track,count:'all',label:'Mistake Book'});
-  document.querySelectorAll('[data-smart-start]').forEach(b=>b.onclick=()=>{const kind=b.dataset.smartStart,topic=b.dataset.smartTopic;if(kind==='mistakes')startQuiz({mode:'mistakes',track:state.track,count:'all',label:'Mistake Book'});else if(kind==='topic'&&topic){state.topic=topic;startQuiz({mode:'topic',track:state.track,topic,count:5,label:`${topicTitle(state.track,topic)} Practice`})}else startQuiz({mode:'random',track:state.track,count:5,label:'Quick Random'})});
+  document.querySelectorAll('[data-smart-start]').forEach(b=>b.onclick=()=>{const kind=b.dataset.smartStart,topic=b.dataset.smartTopic;if(kind==='mistakes')startQuiz({mode:'mistakes',track:state.track,count:'all',label:'Mistake Book'});else if(kind==='topic'&&topic){state.topic=topic;startQuiz({mode:'topic',track:state.track,topic,count:5,label:`${topicTitle(state.track,topic)} Practice`})}else if(kind==='learn'){state.view='learn';render()}else startQuiz({mode:'random',track:state.track,count:5,label:'Quick Random'})});
   $('#resultMistakes')?.addEventListener('click',()=>startQuiz({mode:'mistakes',track:state.track,count:'all',label:'Mistake Book'}));
   const back=$('#backLearn');if(back)back.onclick=()=>{state.view='learn';render()};
   const pt=$('#practiceTopic');if(pt)pt.onclick=()=>startQuiz({mode:'topic',track:state.track,topic:state.topic,count:'all',label:`${topicTitle(state.track,state.topic)} Practice`});
@@ -518,7 +519,7 @@ function bind(){
   $('#printOmr')?.addEventListener('click',()=>printHtml(omrDocument(state.omrConfig)));
   $('#downloadOmrHtml')?.addEventListener('click',()=>downloadText('english-haters-omr.html',omrDocument(state.omrConfig)));
   $('#localProfileForm')?.addEventListener('submit',e=>{e.preventDefault();const d=new FormData(e.currentTarget),p=localProfile();saveLocalProfile({...p,name:String(d.get('name')||'English Hater').trim()});state.account.message='Profile saved on this browser.';state.account.error='';render()});
-  $('#signInForm')?.addEventListener('submit',async e=>{e.preventDefault();const d=new FormData(e.currentTarget);state.account.error='';state.account.message='Signing in…';render();try{await EHBackend.signIn(String(d.get('email')||'').trim(),String(d.get('password')||''));await refreshAccount()}catch(err){state.account.message='';state.account.error=err.message;render()}});
+  $('#signInForm')?.addEventListener('submit',async e=>{e.preventDefault();const d=new FormData(e.currentTarget);deviceEvictionNotice='';state.account.error='';state.account.message='Signing in…';render();try{const data=await EHBackend.signIn(String(d.get('email')||'').trim(),String(d.get('password')||''));await refreshAccount();if(data?.deviceRegistration?.evicted){state.account.message=`Signed in. Oldest device${data.deviceRegistration.evicted_device_name?` (${data.deviceRegistration.evicted_device_name})`:''} was signed out automatically.`;render()}}catch(err){state.account.message='';state.account.error=err.message;render()}});
   $('#signUpForm')?.addEventListener('submit',async e=>{e.preventDefault();const d=new FormData(e.currentTarget);state.account.error='';state.account.message='Creating account…';render();try{const data=await EHBackend.signUp(String(d.get('email')||'').trim(),String(d.get('password')||''),String(d.get('name')||'').trim());if(data.session){await refreshAccount()}else{state.account.message='Account created. Check your email to confirm it, then sign in.';render()}}catch(err){state.account.message='';state.account.error=err.message;render()}});
   $('#showReset')?.addEventListener('click',()=>$('#resetPasswordForm')?.classList.toggle('hidden'));
   $('#resetPasswordForm')?.addEventListener('submit',async e=>{e.preventDefault();const d=new FormData(e.currentTarget);state.account.error='';state.account.message='Sending recovery link…';render();try{await EHBackend.sendPasswordReset(String(d.get('email')||'').trim());state.account.message='Recovery email sent. Open the link on this device to choose a new password.';render()}catch(err){state.account.message='';state.account.error=err.message;render()}});
@@ -529,18 +530,19 @@ function bind(){
   $('#removeAvatar')?.addEventListener('click',async()=>{try{if(EHBackend?.enabled&&state.account.user){await EHBackend.removeAvatar();state.account.profile=await EHBackend.getProfile()}else{const p=localProfile();saveLocalProfile({...p,avatar:''})}state.account.message='Profile picture removed.';state.account.error='';render()}catch(err){state.account.error=err.message;render()}});
   $('#syncNow')?.addEventListener('click',async()=>{try{state.account.syncing=true;render();await EHBackend.pushProgress(progressPayload());state.account.profile=await EHBackend.getProfile();state.account.syncing=false;state.account.message='Progress synced just now.';render()}catch(err){state.account.syncing=false;state.account.error=err.message;render()}});
   document.querySelectorAll('[data-remove-device]').forEach(b=>b.onclick=async()=>{if(!confirm('Remove this registered device from your account?'))return;try{await EHBackend.removeDevice(b.dataset.removeDevice);state.account.devices=await EHBackend.listDevices();state.account.message='Device removed.';render()}catch(err){state.account.error=err.message;render()}});
-  $('#signOut')?.addEventListener('click',async()=>{try{await EHBackend.pushProgress(progressPayload());await EHBackend.signOut()}catch{}clearProgress();saveWithoutCloud();state.account={loading:false,user:null,profile:null,devices:[],message:'Signed out.',error:'',syncing:false};render()});
+  $('#signOut')?.addEventListener('click',async()=>{stopDeviceWatch();deviceEvictionNotice='';try{await EHBackend.pushProgress(progressPayload());await EHBackend.signOut('local')}catch{}clearProgress();saveWithoutCloud();localStorage.removeItem('eh_cloud_user_id');state.account={loading:false,user:null,profile:null,devices:[],message:'Signed out.',error:'',syncing:false};render()});
 }
 
 window.addEventListener('keydown',handleLearningKeys);
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;if(state.view==='profile')render()});
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;if(state.view==='profile')render()});
-window.addEventListener('online',()=>document.body.dataset.network='online');
+window.addEventListener('online',()=>{document.body.dataset.network='online';checkCurrentDevice()});
+window.addEventListener('focus',checkCurrentDevice);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkCurrentDevice()});
 window.addEventListener('offline',()=>document.body.dataset.network='offline');
 document.body.dataset.network=navigator.onLine?'online':'offline';
-if('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+if('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 chooseDefaultTopic();
 backfillAchievements();
 render();
 initBackend();
-

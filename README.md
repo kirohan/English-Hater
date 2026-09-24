@@ -1,6 +1,6 @@
 # English Haters — V1 Private Alpha
 
-**Current build:** Phase 1.12 — Final Design Polish & QA
+**Current build:** Phase 2.0 — Curriculum & Content Architecture
 
 This repository is intended to remain private. The browser uses only the Supabase publishable key; never commit service-role/secret keys or `.env` files.
 
@@ -34,3 +34,7 @@ The 36 bundled questions are demo-only and intentionally remain available for lo
 - Import batch tracking
 - 200-row chunked cloud publishing
 - Only approved content is eligible for student publishing
+
+
+## Phase 2.0.2
+Protected device sync + stale-PWA-cache fix.

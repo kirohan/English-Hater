@@ -30,6 +30,10 @@ function publicQuestion(q: any) {
     id: q.id,
     track: q.track,
     topic: q.topic,
+    subtopic: q.subtopic || '',
+    curriculum: q.curriculum || '',
+    chapter: q.chapter || '',
+    unit: q.unit || '',
     difficulty: q.difficulty || 'easy',
     question: q.question,
     choices: Array.isArray(q.choices) ? q.choices : [],
@@ -66,6 +70,46 @@ Deno.serve(async (req: Request) => {
     const body = await req.json().catch(() => ({})) as any
     const action = clean(body.action, 30)
 
+    // Protected question content is only available to a currently registered device.
+    // This closes the JWT-expiry window for an English Haters device that has been rotated out.
+    const deviceKey = clean(body.device_key, 200)
+    if (deviceKey.length < 8) return json({ error: 'This app version must register a device before protected content can be used.', code: 'DEVICE_REQUIRED' }, 401)
+    const { data: activeDevice, error: deviceError } = await admin.from('user_devices')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('device_key', deviceKey)
+      .maybeSingle()
+    if (deviceError) throw deviceError
+    if (!activeDevice) return json({ error: 'This device was signed out because your account was used on a newer device.', code: 'DEVICE_EVICTED' }, 401)
+
+    const approved = (q: any) => q.eq('published', true).eq('review_status', 'approved')
+
+    if (action === 'mistakes') {
+      const rawIds = Array.isArray(body.question_ids) ? body.question_ids : []
+      const ids = [...new Set(rawIds.map((x: unknown) => clean(x, 160)).filter(Boolean))].slice(0, 50)
+      if (!ids.length) return json({ error: 'Your Mistake Book is empty.' }, 400)
+      const track = clean(body.track, 24)
+      const count = clamp(body.count, 1, Math.min(50, ids.length), Math.min(20, ids.length))
+      let query = approved(admin.from('questions')
+        .select('id,track,topic,subtopic,curriculum,chapter,unit,difficulty,question,choices,source_type,source_name,source_year,tags'))
+        .in('id', ids)
+      if (track) query = query.eq('track', track)
+      const { data, error } = await query
+      if (error) throw error
+      const byId = new Map((data || []).map((q: any) => [String(q.id), q]))
+      const picked = ids.map(id => byId.get(id)).filter(Boolean).slice(0, count) as any[]
+      if (!picked.length) return json({ error: 'Those saved mistakes are no longer available.' }, 404)
+      const { data: quota, error: quotaError } = await admin.rpc('consume_student_quota', { p_user_id: user.id, p_kind: 'questions', p_units: picked.length, p_limit: 500 })
+      if (quotaError) throw quotaError
+      if (!quota?.allowed) return json({ error: 'Daily question limit reached for this beta account.' }, 429)
+      const expires = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
+      const { data: sessionRow, error: sessionError } = await admin.from('question_sessions_secure')
+        .insert({ user_id: user.id, mode: 'practice', question_ids: picked.map((q: any) => String(q.id)), expires_at: expires })
+        .select('id,expires_at').single()
+      if (sessionError) throw sessionError
+      return json({ session_id: sessionRow.id, expires_at: sessionRow.expires_at, questions: picked.map(publicQuestion) })
+    }
+
     if (action === 'session' || action === 'browse') {
       const mode = action === 'browse' ? 'question_bank' : (clean(body.mode, 20) === 'exam' ? 'exam' : 'practice')
       const hardMax = mode === 'question_bank' ? 30 : 50
@@ -74,10 +118,8 @@ Deno.serve(async (req: Request) => {
       const topic = clean(body.topic || 'all', 64)
       const difficulty = clean(body.difficulty || 'all', 20)
       const search = clean(body.search || '', 120)
-
-      let query = admin.from('questions')
-        .select('id,track,topic,difficulty,question,choices,source_type,source_name,source_year,tags')
-        .eq('published', true)
+      let query = approved(admin.from('questions')
+        .select('id,track,topic,subtopic,curriculum,chapter,unit,difficulty,question,choices,source_type,source_name,source_year,tags'))
       if (track) query = query.eq('track', track)
       if (topic && topic !== 'all') query = query.eq('topic', topic)
       if (difficulty && difficulty !== 'all') query = query.eq('difficulty', difficulty)
@@ -85,16 +127,9 @@ Deno.serve(async (req: Request) => {
       const { data, error } = await query.limit(Math.min(250, Math.max(80, count * 5)))
       if (error) throw error
       const picked = shuffle(data || []).slice(0, count)
-
-      const { data: quota, error: quotaError } = await admin.rpc('consume_student_quota', {
-        p_user_id: user.id,
-        p_kind: 'questions',
-        p_units: picked.length,
-        p_limit: 500,
-      })
+      const { data: quota, error: quotaError } = await admin.rpc('consume_student_quota', { p_user_id: user.id, p_kind: 'questions', p_units: picked.length, p_limit: 500 })
       if (quotaError) throw quotaError
       if (!quota?.allowed) return json({ error: 'Daily question limit reached for this beta account.' }, 429)
-
       const expires = new Date(Date.now() + (mode === 'exam' ? 3 : 2) * 60 * 60 * 1000).toISOString()
       const { data: sessionRow, error: sessionError } = await admin.from('question_sessions_secure')
         .insert({ user_id: user.id, mode, question_ids: picked.map((q: any) => String(q.id)), expires_at: expires })
@@ -112,27 +147,13 @@ Deno.serve(async (req: Request) => {
       if (sessError) throw sessError
       if (!sess || new Date(sess.expires_at).getTime() < Date.now()) return json({ error: 'Question session expired. Start a new set.' }, 410)
       if (!Array.isArray(sess.question_ids) || !sess.question_ids.includes(questionId)) return json({ error: 'Question is not part of this session.' }, 403)
-
-      const { data: q, error: qError } = await admin.from('questions')
-        .select('id,answer,explanation,choices').eq('id', questionId).eq('published', true).maybeSingle()
+      const { data: q, error: qError } = await approved(admin.from('questions').select('id,answer,explanation,choices')).eq('id', questionId).maybeSingle()
       if (qError) throw qError
       if (!q) return json({ error: 'Question not found.' }, 404)
-
-      const { data: quota, error: quotaError } = await admin.rpc('consume_student_quota', {
-        p_user_id: user.id,
-        p_kind: 'answers',
-        p_units: 1,
-        p_limit: 500,
-      })
+      const { data: quota, error: quotaError } = await admin.rpc('consume_student_quota', { p_user_id: user.id, p_kind: 'answers', p_units: 1, p_limit: 500 })
       if (quotaError) throw quotaError
       if (!quota?.allowed) return json({ error: 'Daily answer-check limit reached for this beta account.' }, 429)
-
-      return json({
-        question_id: q.id,
-        correct: action === 'reveal' || selected === null ? null : selected === Number(q.answer),
-        answer: Number(q.answer),
-        explanation: q.explanation || '',
-      })
+      return json({ question_id: q.id, correct: action === 'reveal' || selected === null ? null : selected === Number(q.answer), answer: Number(q.answer), explanation: q.explanation || '' })
     }
 
     if (action === 'submit_exam') {
@@ -143,26 +164,15 @@ Deno.serve(async (req: Request) => {
       if (sessError) throw sessError
       if (!sess || sess.mode !== 'exam' || new Date(sess.expires_at).getTime() < Date.now()) return json({ error: 'Exam session expired.' }, 410)
       const ids = Array.isArray(sess.question_ids) ? sess.question_ids : []
-      const { data: qs, error: qError } = await admin.from('questions').select('id,answer,explanation').in('id', ids)
+      const { data: qs, error: qError } = await approved(admin.from('questions').select('id,answer,explanation')).in('id', ids)
       if (qError) throw qError
       const byId = new Map((qs || []).map((q: any) => [String(q.id), q]))
       const results = ids.map((id: string, i: number) => {
         const q: any = byId.get(String(id))
         const selected = answers[i] === null || answers[i] === undefined ? null : clamp(answers[i], 0, 3, 0)
-        return {
-          question_id: id,
-          selected,
-          correct: q ? selected === Number(q.answer) : false,
-          answer: q ? Number(q.answer) : null,
-          explanation: q?.explanation || '',
-        }
+        return { question_id: id, selected, correct: q ? selected === Number(q.answer) : false, answer: q ? Number(q.answer) : null, explanation: q?.explanation || '' }
       })
-      const { data: quota, error: quotaError } = await admin.rpc('consume_student_quota', {
-        p_user_id: user.id,
-        p_kind: 'answers',
-        p_units: Math.max(1, results.length),
-        p_limit: 500,
-      })
+      const { data: quota, error: quotaError } = await admin.rpc('consume_student_quota', { p_user_id: user.id, p_kind: 'answers', p_units: Math.max(1, results.length), p_limit: 500 })
       if (quotaError) throw quotaError
       if (!quota?.allowed) return json({ error: 'Daily answer-check limit reached for this beta account.' }, 429)
       return json({ results, correct: results.filter((r: any) => r.correct).length, total: results.length })

@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
   const cfg = window.EH_BACKEND_CONFIG || {};
   const enabled = Boolean(cfg.supabaseUrl && cfg.supabaseAnonKey && window.supabase?.createClient);
   const client = enabled ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
@@ -13,6 +13,8 @@
     }
     return key;
   })();
+
+  const DEVICE_REG_MARKER = 'eh_device_registration_v2';
 
   const deviceName = () => {
     const ua = navigator.userAgent || 'Browser';
@@ -50,6 +52,7 @@
       options: { data: { name: String(name || '').trim() } }
     });
     if (error) throw error;
+    if (data.user && data.session) data.deviceRegistration = await registerDevice({ rotate: true });
     return data;
   }
 
@@ -57,19 +60,13 @@
     needCloud();
     const { data, error } = await client.auth.signInWithPassword({ email, password });
     if (error) throw error;
-    if (data.user) {
-      const result = await registerDevice();
-      if (!result.allowed) {
-        await client.auth.signOut();
-        throw new Error(`Device limit reached. English Haters currently allows ${cfg.maxDevices || 2} devices per account. Remove an old device first.`);
-      }
-    }
+    if (data.user) data.deviceRegistration = await registerDevice({ rotate: true });
     return data;
   }
 
-  async function signOut() {
+  async function signOut(scope = 'local') {
     if (!enabled) return;
-    const { error } = await client.auth.signOut();
+    const { error } = await client.auth.signOut({ scope });
     if (error) throw error;
   }
 
@@ -95,15 +92,18 @@
     return data.subscription;
   }
 
-  async function registerDevice() {
+  async function registerDevice({ rotate = false } = {}) {
     needCloud();
-    const { data, error } = await client.rpc('register_device', {
+    const rpcName = rotate ? 'rotate_device' : 'register_device';
+    const { data, error } = await client.rpc(rpcName, {
       p_device_key: deviceKey,
       p_device_name: deviceName(),
       p_max_devices: Number(cfg.maxDevices || 2)
     });
     if (error) throw error;
-    return data || { allowed: false };
+    const result = data || { allowed: false };
+    if (result.allowed && result.registered !== false) localStorage.setItem(DEVICE_REG_MARKER, '1');
+    return result;
   }
 
   async function listDevices() {
@@ -116,6 +116,46 @@
       .order('last_seen_at', { ascending: false });
     if (error) throw error;
     return (data || []).map(d => ({ ...d, current: d.device_key === deviceKey }));
+  }
+
+  async function currentDeviceStatus() {
+    needCloud();
+    const u = await user();
+    if (!u) return { registered: false, device: null };
+    const { data, error } = await client.from('user_devices')
+      .select('id,device_key,device_name,last_seen_at,created_at')
+      .eq('user_id', u.id)
+      .eq('device_key', deviceKey)
+      .maybeSingle();
+    if (error) throw error;
+    return { registered: Boolean(data), device: data || null };
+  }
+
+  async function ensureProtectedDevice() {
+    needCloud();
+    const u = await user();
+    if (!u) throw new Error('Sign in to use the protected question bank.');
+
+    const status = await currentDeviceStatus();
+    if (status.registered) {
+      localStorage.setItem(DEVICE_REG_MARKER, '1');
+      return status;
+    }
+
+    // One-time upgrade path for sessions created before device rotation was introduced.
+    // Once a browser has been registered on the new system, a missing row means it
+    // was genuinely evicted and must not silently rotate itself back in.
+    if (!localStorage.getItem(DEVICE_REG_MARKER)) {
+      const registration = await registerDevice({ rotate: true });
+      if (registration?.allowed && registration?.registered !== false) {
+        localStorage.setItem(DEVICE_REG_MARKER, '1');
+        return { registered: true, device: null, migrated: true, registration };
+      }
+    }
+
+    const err = new Error('This device was signed out because your account was used on a newer device. Sign in again to use this device.');
+    err.code = 'DEVICE_EVICTED';
+    throw err;
   }
 
   async function removeDevice(id) {
@@ -236,7 +276,8 @@
       title: l.title,
       rule: l.rule,
       examples: Array.isArray(l.examples) ? l.examples : [],
-      sections: Array.isArray(l.sections) ? l.sections : [],
+      curriculum: l.curriculum || '', chapter: l.chapter || '',
+      review_status: l.review_status || 'approved', import_batch: l.import_batch || '',
       sort_order: Number(l.sort_order || 0),
       published: l.published !== false,
       cloud: true
@@ -256,7 +297,8 @@
     needCloud();
     const s = await session();
     if (!s?.user) throw new Error('Sign in to use the protected question bank.');
-    const { data, error } = await client.functions.invoke('student-content', { body: payload });
+    await ensureProtectedDevice();
+    const { data, error } = await client.functions.invoke('student-content', { body: { ...payload, device_key: deviceKey } });
     if (error) {
       let message = error.message || 'Protected content request failed.';
       try {
@@ -336,8 +378,9 @@
     }));
     const lRows = (localLessons || []).map(l => ({
       id: String(l.id), track: l.track, topic: l.topic, title: l.title,
-      rule: l.rule, examples: l.examples || [], sort_order: Number(l.sort_order || 0),
-      published: l.published !== false, updated_at: new Date().toISOString()
+      rule: l.rule, examples: l.examples || [], curriculum: l.curriculum || '', chapter: l.chapter || '',
+      review_status: l.review_status || 'draft', import_batch: l.import_batch || '', sort_order: Number(l.sort_order || 0),
+      published: (l.review_status || 'draft') === 'approved' && l.published !== false, updated_at: new Date().toISOString()
     }));
     for (let i = 0; i < qRows.length; i += 200) {
       const { error } = await client.from('questions').upsert(qRows.slice(i, i + 200), { onConflict: 'id' });
@@ -368,11 +411,10 @@
   window.EHBackend = {
     enabled, client, deviceKey, deviceName: deviceName(),
     session, user, signUp, signIn, signOut, sendPasswordReset, updatePassword, onAuthChange,
-    registerDevice, listDevices, removeDevice,
+    registerDevice, listDevices, currentDeviceStatus, ensureProtectedDevice, removeDevice,
     getProfile, saveProfile, uploadAvatar, removeAvatar,
     pullProgress, pushProgress, loadContent,
     createQuestionSession, createMistakeSession, checkSecureAnswer, submitSecureExam, browseSecureQuestions, revealSecureAnswer,
     isAdmin, adminCounts, publishContent, pullEditableContent
   };
 })();
-

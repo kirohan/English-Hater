@@ -1,3 +1,2 @@
-id,track,topic,title,rule,examples,sort_order,published
-,ssc,article,Article,"Use a/an before a singular countable noun when it is not specific. Choose by sound.","an honest man|a university|an hour",1,true
-,admission,preposition,Preposition,"Learn fixed preposition combinations through repeated practice.","insist on|abide by|capable of",2,true
+id,track,topic,curriculum,chapter,title,rule,examples,sort_order,review_status,import_batch,published
+,ssc,article,NCTB SSC,Grammar & Usage,Articles,"Use a/an based on sound; use the when the noun is specific.","an honest man|a university",10,review,ssc-grammar-batch-01,false

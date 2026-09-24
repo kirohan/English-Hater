@@ -1,10 +1,10 @@
-﻿-- English Haters Phase 1.6 — final hardened Supabase foundation
+-- English Haters Phase 1.6 — final hardened Supabase foundation
 create extension if not exists pgcrypto;
 
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   name text not null default '',
-  current_track text not null default 'ssc' check (current_track in ('junior','ssc','hsc','admission')),
+  current_track text not null default 'ssc' check (current_track in ('junior','ssc','hsc','engineering','university')),
   xp integer not null default 0 check (xp >= 0),
   avatar_path text,
   role text not null default 'student' check (role in ('student','admin')),
@@ -37,12 +37,11 @@ create table if not exists public.user_devices (
 
 create table if not exists public.lessons (
   id text primary key,
-  track text not null check (track in ('junior','ssc','hsc','admission')),
+  track text not null check (track in ('junior','ssc','hsc','engineering','university')),
   topic text not null,
   title text not null,
   rule text not null,
   examples jsonb not null default '[]'::jsonb,
-  sections jsonb not null default '[]'::jsonb,
   sort_order integer not null default 0,
   published boolean not null default true,
   updated_at timestamptz not null default now()
@@ -50,7 +49,7 @@ create table if not exists public.lessons (
 
 create table if not exists public.questions (
   id text primary key,
-  track text not null check (track in ('junior','ssc','hsc','admission')),
+  track text not null check (track in ('junior','ssc','hsc','engineering','university')),
   topic text not null,
   difficulty text not null default 'easy' check (difficulty in ('easy','medium','hard')),
   question text not null,
@@ -133,8 +132,9 @@ create trigger protect_profile_role_trigger
 before update on public.profiles
 for each row execute procedure public.protect_profile_role();
 
--- Two-device registration. Security definer is intentional so counting/inserting
--- is atomic behind one authenticated RPC; PUBLIC execute is explicitly revoked.
+-- Legacy-safe device registration. Existing clients call this on refresh.
+-- It never evicts another device; if the account is full and this device is not registered,
+-- it reports rotation_required without inserting, avoiding eviction ping-pong during upgrades.
 create or replace function public.register_device(
   p_device_key text,
   p_device_name text,
@@ -151,40 +151,81 @@ declare
   current_count integer;
   effective_limit integer := least(greatest(1, coalesce(p_max_devices, 2)), 2);
 begin
-  if uid is null then
-    raise exception 'Authentication required';
-  end if;
-  if coalesce(length(p_device_key),0) < 8 or length(p_device_key) > 200 then
-    raise exception 'Invalid device key';
-  end if;
-
-  select id into existing_id
-  from public.user_devices
-  where user_id = uid and device_key = p_device_key;
-
-  if existing_id is not null then
-    update public.user_devices
-      set device_name = left(coalesce(p_device_name, 'Browser'), 80), last_seen_at = now()
-      where id = existing_id;
-    return jsonb_build_object('allowed', true, 'existing', true,
-      'count', (select count(*) from public.user_devices where user_id = uid));
-  end if;
-
-  -- Serialize registration attempts per user to avoid two simultaneous third-device inserts.
+  if uid is null then raise exception 'Authentication required'; end if;
+  if coalesce(length(p_device_key),0) < 8 or length(p_device_key) > 200 then raise exception 'Invalid device key'; end if;
   perform pg_advisory_xact_lock(hashtext(uid::text));
-  select count(*) into current_count from public.user_devices where user_id = uid;
-  if current_count >= effective_limit then
-    return jsonb_build_object('allowed', false, 'existing', false, 'count', current_count);
+
+  select id into existing_id from public.user_devices where user_id=uid and device_key=p_device_key;
+  if existing_id is not null then
+    update public.user_devices set device_name=left(coalesce(p_device_name,'Browser'),80), last_seen_at=now() where id=existing_id;
+    return jsonb_build_object('allowed',true,'registered',true,'existing',true,'evicted',false,
+      'count',(select count(*) from public.user_devices where user_id=uid));
   end if;
 
-  insert into public.user_devices(user_id, device_key, device_name)
-  values(uid, p_device_key, left(coalesce(p_device_name, 'Browser'), 80));
+  select count(*) into current_count from public.user_devices where user_id=uid;
+  if current_count >= effective_limit then
+    return jsonb_build_object('allowed',true,'registered',false,'existing',false,'evicted',false,
+      'rotation_required',true,'count',current_count);
+  end if;
 
-  return jsonb_build_object('allowed', true, 'existing', false, 'count', current_count + 1);
+  insert into public.user_devices(user_id,device_key,device_name)
+  values(uid,p_device_key,left(coalesce(p_device_name,'Browser'),80));
+  return jsonb_build_object('allowed',true,'registered',true,'existing',false,'evicted',false,'count',current_count+1);
 end;
 $$;
 revoke all on function public.register_device(text,text,integer) from public, anon, authenticated;
 grant execute on function public.register_device(text,text,integer) to authenticated;
+
+-- Deliberate sign-in rotation. New clients call this only for a fresh sign-in/recovery session.
+-- When full, it atomically deletes the least-recently registered/used device and adds the new one.
+create or replace function public.rotate_device(
+  p_device_key text,
+  p_device_name text,
+  p_max_devices integer default 2
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  uid uuid := (select auth.uid());
+  existing_id uuid;
+  current_count integer;
+  effective_limit integer := least(greatest(1, coalesce(p_max_devices, 2)), 2);
+  evicted_id uuid;
+  evicted_name text;
+begin
+  if uid is null then raise exception 'Authentication required'; end if;
+  if coalesce(length(p_device_key),0) < 8 or length(p_device_key) > 200 then raise exception 'Invalid device key'; end if;
+  perform pg_advisory_xact_lock(hashtext(uid::text));
+
+  select id into existing_id from public.user_devices where user_id=uid and device_key=p_device_key;
+  if existing_id is not null then
+    update public.user_devices set device_name=left(coalesce(p_device_name,'Browser'),80), last_seen_at=now() where id=existing_id;
+    return jsonb_build_object('allowed',true,'registered',true,'existing',true,'evicted',false,
+      'count',(select count(*) from public.user_devices where user_id=uid));
+  end if;
+
+  select count(*) into current_count from public.user_devices where user_id=uid;
+  if current_count >= effective_limit then
+    select id,device_name into evicted_id,evicted_name
+    from public.user_devices where user_id=uid
+    order by last_seen_at asc,created_at asc,id asc limit 1;
+    if evicted_id is not null then
+      delete from public.user_devices where id=evicted_id and user_id=uid;
+      current_count:=current_count-1;
+    end if;
+  end if;
+
+  insert into public.user_devices(user_id,device_key,device_name)
+  values(uid,p_device_key,left(coalesce(p_device_name,'Browser'),80));
+  return jsonb_build_object('allowed',true,'registered',true,'existing',false,
+    'evicted',evicted_id is not null,'evicted_device_id',evicted_id,'evicted_device_name',evicted_name,'count',current_count+1);
+end;
+$$;
+revoke all on function public.rotate_device(text,text,integer) from public, anon, authenticated;
+grant execute on function public.rotate_device(text,text,integer) to authenticated;
 
 -- RLS
 alter table public.profiles enable row level security;
@@ -279,7 +320,7 @@ USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = (select auth.ui
 
 -- Security-advisor note: public.register_device is intentionally SECURITY DEFINER and
 -- executable only by authenticated users. It validates auth.uid(), constrains input,
--- caps device count at 2, and serializes concurrent registrations.
+-- caps device count at 2, rotates out the oldest device, and serializes concurrent registrations.
 
 
 -- Phase 1.8A SECURITY HARDENING ---------------------------------------------
@@ -373,3 +414,15 @@ revoke all on function private.set_question_content_hash() from public,anon,auth
 drop trigger if exists set_question_content_hash_trigger on public.questions;
 create trigger set_question_content_hash_trigger before insert or update of question,choices on public.questions for each row execute function private.set_question_content_hash();
 
+
+-- Phase 2.0: split Admission into Engineering Admission and University Admission.
+-- Legacy demo/admission content moves to University Admission; engineering content is added explicitly.
+alter table public.profiles drop constraint if exists profiles_current_track_check;
+alter table public.lessons drop constraint if exists lessons_track_check;
+alter table public.questions drop constraint if exists questions_track_check;
+update public.profiles set current_track='university' where current_track='admission';
+update public.lessons set track='university' where track='admission';
+update public.questions set track='university' where track='admission';
+alter table public.profiles add constraint profiles_current_track_check check (current_track in ('junior','ssc','hsc','engineering','university'));
+alter table public.lessons add constraint lessons_track_check check (track in ('junior','ssc','hsc','engineering','university'));
+alter table public.questions add constraint questions_track_check check (track in ('junior','ssc','hsc','engineering','university'));

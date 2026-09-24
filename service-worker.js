@@ -1,5 +1,5 @@
-﻿const CACHE='english-haters-v12-tense-content';
-const CORE=['./','styles.css','app.js','backend.js','data/questions.js','data/lessons.js','data/tense-lessons.js','manifest.webmanifest','admin.html','admin.css','admin.js','cloud-admin.html','cloud-admin.js','privacy.html','terms.html','launch.html','launch.js','question-import-template.csv','lesson-import-template.csv'];
+const CACHE='english-haters-v14-device-sync';
+const CORE=['./','styles.css','app.js','backend.js','data/curriculum.js','data/questions.js','data/lessons.js','manifest.webmanifest','admin.html','admin.css','admin.js','cloud-admin.html','cloud-admin.js','privacy.html','terms.html','launch.html','launch.js','question-import-template.csv','lesson-import-template.csv'];
 
 self.addEventListener('install',event=>event.waitUntil(
   caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())
@@ -23,8 +23,7 @@ self.addEventListener('fetch',event=>{
   const url=new URL(event.request.url);
   if(event.request.method!=='GET')return;
   if(url.origin!==self.location.origin)return;
-  const dynamic=url.pathname.endsWith('/')||url.pathname.endsWith('.html')||url.pathname.endsWith('backend-config.js');
+  const dynamic=url.pathname.endsWith('/')||url.pathname.endsWith('.html')||url.pathname.endsWith('backend-config.js')||url.pathname.endsWith('backend.js')||url.pathname.endsWith('app.js');
   if(dynamic){event.respondWith(networkFirst(event.request));return}
   event.respondWith(caches.match(event.request).then(hit=>hit||fetch(event.request).then(async response=>{if(response.ok){const cache=await caches.open(CACHE);cache.put(event.request,response.clone())}return response})));
 });
-
