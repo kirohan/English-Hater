@@ -38,3 +38,7 @@ The 36 bundled questions are demo-only and intentionally remain available for lo
 
 ## Phase 2.0.2
 Protected device sync + stale-PWA-cache fix.
+
+## Structured lesson content (Phase 2.1)
+
+For long-form lessons with multiple sections, run `supabase-structured-lessons.sql` once in the Supabase SQL Editor after the main database setup. The migration adds a JSONB payload column without deleting or rewriting existing lessons. Use `LESSON-CONTENT-GUIDE.md` and `lesson-import-template.json` to prepare and import full lessons through the Content Admin.

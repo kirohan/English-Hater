@@ -7,11 +7,23 @@ errors=[]
 def fail(msg): errors.append(msg)
 
 # JavaScript parse checks
-for name in ['app.js','backend.js','admin.js','cloud-admin.js','launch.js','backend-config.js','service-worker.js','data/questions.js','data/lessons.js']:
+for name in ['app.js','backend.js','admin.js','cloud-admin.js','launch.js','backend-config.js','service-worker.js','data/questions.js','data/lessons.js','data/lesson-schema.js']:
     p=ROOT/name
     if not p.exists(): fail(f'missing {name}'); continue
     r=subprocess.run(['node','--check',str(p)],capture_output=True,text=True)
     if r.returncode: fail(f'JS syntax {name}: {r.stderr.strip()}')
+
+
+# Structured lesson schema and import template
+try:
+    template=json.loads((ROOT/'lesson-import-template.json').read_text(encoding='utf-8'))
+    if not isinstance(template.get('lessons'),list) or not template['lessons']:
+        fail('lesson import template must contain a non-empty lessons array')
+except Exception as e:
+    fail(f'lesson import template invalid: {e}')
+for test_script in ['test_lesson_schema.js','test_admin_lesson_import.js','test_lesson_renderer.js']:
+    r=subprocess.run(['node',str(ROOT/'scripts'/test_script)],capture_output=True,text=True)
+    if r.returncode: fail(f'{test_script}: {r.stderr.strip() or r.stdout.strip()}')
 
 # HTML local references
 attr=re.compile(r'''(?:src|href)=["']([^"']+)["']''',re.I)

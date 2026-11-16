@@ -1,5 +1,5 @@
-﻿const CACHE='english-haters-v16-original-visual';
-const CORE=['./','styles.css','app.js','backend.js','data/curriculum.js','data/questions.js','data/lessons.js','manifest.webmanifest','admin.html','admin.css','admin.js','cloud-admin.html','cloud-admin.js','privacy.html','terms.html','launch.html','launch.js','question-import-template.csv','lesson-import-template.csv'];
+const CACHE='english-haters-v17-structured-lessons';
+const CORE=['./','styles.css','app.js','backend.js','data/curriculum.js','data/questions.js','data/lessons.js','data/lesson-schema.js','lesson-import-template.json','manifest.webmanifest','admin.html','admin.css','admin.js','cloud-admin.html','cloud-admin.js','privacy.html','terms.html','launch.html','launch.js','question-import-template.csv','lesson-import-template.csv'];
 
 self.addEventListener('install',event=>event.waitUntil(
   caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())

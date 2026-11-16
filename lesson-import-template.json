@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0.0",
+  "lessons": [
+    {
+      "id": "lesson-ssc-article",
+      "track": "ssc",
+      "curriculum": "NCTB SSC",
+      "chapter": "Grammar",
+      "topic": "article",
+      "title": "Articles: A, An and The",
+      "summary": "A structured lesson about the use of English articles.",
+      "level": "foundation",
+      "estimated_minutes": 25,
+      "prerequisites": [
+        "Nouns",
+        "Singular and plural nouns",
+        "Countable and uncountable nouns"
+      ],
+      "learning_outcomes": [
+        "Identify the three English articles.",
+        "Choose a or an by pronunciation.",
+        "Use the when a noun is identifiable.",
+        "Recognize common zero-article patterns."
+      ],
+      "sections": [
+        {
+          "id": "introduction",
+          "type": "introduction",
+          "title": "Introduction",
+          "body": "Write an original, student-friendly introduction here. Use plain text. Separate paragraphs with a blank line."
+        },
+        {
+          "id": "rule-a-an",
+          "type": "rule",
+          "title": "Rule 1: A and An",
+          "body": "Explain the rule and when students should use it.",
+          "formula": "A / An + singular countable noun",
+          "examples": [
+            {
+              "text": "A university",
+              "explanation": "University begins with the consonant sound /j/.",
+              "translation": "একটি বিশ্ববিদ্যালয়"
+            },
+            {
+              "text": "An hour",
+              "explanation": "The h is silent, so the word begins with a vowel sound.",
+              "translation": "এক ঘণ্টা"
+            }
+          ],
+          "note": {
+            "type": "tip",
+            "title": "Remember",
+            "text": "Choose a or an by sound, not by the first written letter."
+          }
+        },
+        {
+          "id": "comparison",
+          "type": "comparison",
+          "title": "Compare the forms",
+          "body": "Use this table to explain a common contrast.",
+          "table": {
+            "headers": [
+              "Correct form",
+              "Reason"
+            ],
+            "rows": [
+              [
+                "A university",
+                "Consonant sound /j/"
+              ],
+              [
+                "An hour",
+                "Vowel sound; h is silent"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "common-mistakes",
+          "type": "common_mistake",
+          "title": "Common mistakes",
+          "mistakes": [
+            {
+              "incorrect": "An university",
+              "correct": "A university",
+              "explanation": "The word begins with a consonant sound."
+            }
+          ]
+        },
+        {
+          "id": "revision",
+          "type": "quick_revision",
+          "title": "Quick revision",
+          "items": [
+            "A comes before a consonant sound.",
+            "An comes before a vowel sound."
+          ]
+        }
+      ],
+      "sort_order": 10
+    }
+  ]
+}

@@ -42,6 +42,7 @@ create table if not exists public.lessons (
   title text not null,
   rule text not null,
   examples jsonb not null default '[]'::jsonb,
+  content_json jsonb not null default '{}'::jsonb,
   sort_order integer not null default 0,
   published boolean not null default true,
   updated_at timestamptz not null default now()

@@ -269,12 +269,21 @@
   }
 
   function mapCloudLesson(l) {
+    const content = l.content_json && typeof l.content_json === 'object' && !Array.isArray(l.content_json) ? l.content_json : {};
     return {
       id: l.id,
       track: l.track,
       topic: l.topic,
       title: l.title,
-      rule: l.rule,
+      rule: l.rule || content.summary || '',
+      summary: content.summary || l.rule || '',
+      level: content.level || 'foundation',
+      estimated_minutes: Number(content.estimated_minutes || 0),
+      prerequisites: Array.isArray(content.prerequisites) ? content.prerequisites : [],
+      learning_outcomes: Array.isArray(content.learning_outcomes) ? content.learning_outcomes : [],
+      sections: Array.isArray(content.sections) ? content.sections : [],
+      practice: content.practice && typeof content.practice === 'object' ? content.practice : {},
+      schema_version: content.schema_version || '1.0.0',
       examples: Array.isArray(l.examples) ? l.examples : [],
       curriculum: l.curriculum || '', chapter: l.chapter || '',
       review_status: l.review_status || 'approved', import_batch: l.import_batch || '',
@@ -378,7 +387,17 @@
     }));
     const lRows = (localLessons || []).map(l => ({
       id: String(l.id), track: l.track, topic: l.topic, title: l.title,
-      rule: l.rule, examples: l.examples || [], curriculum: l.curriculum || '', chapter: l.chapter || '',
+      rule: l.rule || l.summary || '', examples: Array.isArray(l.examples) ? l.examples : [], curriculum: l.curriculum || '', chapter: l.chapter || '',
+      content_json: {
+        schema_version: l.schema_version || '1.0.0',
+        summary: l.summary || l.rule || '',
+        level: l.level || 'foundation',
+        estimated_minutes: Number(l.estimated_minutes || 0),
+        prerequisites: Array.isArray(l.prerequisites) ? l.prerequisites : [],
+        learning_outcomes: Array.isArray(l.learning_outcomes) ? l.learning_outcomes : [],
+        sections: Array.isArray(l.sections) ? l.sections : [],
+        practice: l.practice && typeof l.practice === 'object' ? l.practice : {}
+      },
       review_status: l.review_status || 'draft', import_batch: l.import_batch || '', sort_order: Number(l.sort_order || 0),
       published: (l.review_status || 'draft') === 'approved' && l.published !== false, updated_at: new Date().toISOString()
     }));

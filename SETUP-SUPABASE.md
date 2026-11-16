@@ -153,3 +153,7 @@ The current Phase 1.5 implementation stores these as compact JSON progress snaps
 - PWA offline cache
 
 Everything else required for real student identity is now cloud-ready.
+
+## Structured lesson content (Phase 2.1)
+
+For long-form lessons with multiple sections, run `supabase-structured-lessons.sql` once in the Supabase SQL Editor after the main database setup. The migration adds a JSONB payload column without deleting or rewriting existing lessons. Use `LESSON-CONTENT-GUIDE.md` and `lesson-import-template.json` to prepare and import full lessons through the Content Admin.
