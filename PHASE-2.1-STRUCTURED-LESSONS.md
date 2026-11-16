@@ -71,3 +71,12 @@ The included `scripts/qa.py` now runs:
 - Student structured lesson rendering tests
 
 The checks do not replace testing against the live Supabase project or a real browser on desktop and mobile.
+
+
+## Article pilot content
+
+A source-based SSC Article lesson is included under `content/articles/`. It covers the full NEED chapter structure (printed pp. 218–241), including A/An, The, zero article, repetition, and three levels of written practice. The lesson JSON contains source metadata and remains in `review` status with `published: false`.
+
+The package also includes 31 original MCQs in `article-question-bank.csv`, `article-practice-worksheets.md`, and `ARTICLE-EDITORIAL-REPORT.md`. Import the lesson JSON and question CSV separately. MCQ answers stay in the protected question table; the public lesson JSON contains no answer key.
+
+The app now gives locally approved custom lessons/questions precedence over an older cached cloud copy on the same admin device, so an editor can preview a replacement before publishing it. Cloud publishing remains the final step.

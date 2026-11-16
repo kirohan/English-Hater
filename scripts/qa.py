@@ -25,6 +25,20 @@ for test_script in ['test_lesson_schema.js','test_admin_lesson_import.js','test_
     r=subprocess.run(['node',str(ROOT/'scripts'/test_script)],capture_output=True,text=True)
     if r.returncode: fail(f'{test_script}: {r.stderr.strip() or r.stdout.strip()}')
 
+# Source-based Article content package
+try:
+    article=json.loads((ROOT/'content/articles/lesson-ssc-article.json').read_text(encoding='utf-8'))
+    if not article.get('lessons'): fail('Article lesson package has no lessons')
+    with (ROOT/'content/articles/article-question-bank.csv').open(encoding='utf-8-sig',newline='') as f:
+        import csv
+        rows=list(csv.DictReader(f))
+    if len(rows)!=31: fail(f'Article question bank should contain 31 rows; found {len(rows)}')
+    for i,row in enumerate(rows,2):
+        if row.get('track')!='ssc' or row.get('topic')!='article': fail(f'Article question CSV row {i} has wrong track/topic')
+        if not all(row.get(k) for k in ['question','choice_a','choice_b','choice_c','choice_d','answer','explanation']): fail(f'Article question CSV row {i} is incomplete')
+        if row.get('answer') not in ['A','B','C','D']: fail(f'Article question CSV row {i} has invalid answer')
+except Exception as e: fail(f'Article content package invalid: {e}')
+
 # HTML local references
 attr=re.compile(r'''(?:src|href)=["']([^"']+)["']''',re.I)
 for html in ROOT.glob('*.html'):
@@ -70,3 +84,4 @@ print(' - Local HTML references')
 print(' - PWA manifest')
 print(' - Service-worker assets')
 print(' - Secret-pattern guard')
+print(' - Source-based Article lesson and 31-question bank')

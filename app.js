@@ -75,8 +75,8 @@ async function compressAvatarFile(file){
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.84));if(!blob)throw new Error('Could not process that image.');
   const dataUrl=canvas.toDataURL('image/jpeg',.76);return {blob,dataUrl};
 }
-function questions(){return dedupeRows([...(window.EH_QUESTIONS||[]),...safeArray('eh_custom_questions'),...state.cloudQuestions].map(q=>({...q,track:canonicalTrack(q.track)}))).filter(q=>q.published!==false)}
-function lessons(){return dedupeRows([...(window.EH_LESSONS||[]),...safeArray('eh_custom_lessons'),...state.cloudLessons].map(l=>({...l,track:canonicalTrack(l.track)}))).filter(l=>l.published!==false)}
+function questions(){return dedupeRows([...(window.EH_QUESTIONS||[]),...state.cloudQuestions,...safeArray('eh_custom_questions')].map(q=>({...q,track:canonicalTrack(q.track)}))).filter(q=>q.published!==false)}
+function lessons(){return dedupeRows([...(window.EH_LESSONS||[]),...state.cloudLessons,...safeArray('eh_custom_lessons')].map(l=>({...l,track:canonicalTrack(l.track)}))).filter(l=>l.published!==false)}
 function humanTopic(slug){return String(slug||'').split('-').map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(' ')}
 function getLesson(track,topic){const matching=lessons().filter(l=>l.track===track&&l.topic===topic);return matching[matching.length-1]||null}
 function getTopics(track){

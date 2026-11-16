@@ -1,0 +1,1062 @@
+{
+  "schema_version": "1.0.0",
+  "lessons": [
+    {
+      "schema_version": "1.0.0",
+      "id": "lesson-ssc-article",
+      "track": "ssc",
+      "curriculum": "NCTB SSC",
+      "chapter": "English Grammar: Articles",
+      "topic": "article",
+      "title": "Articles: A, An and The",
+      "summary": "Learn how English articles show whether a noun is general, newly introduced or specific. This lesson covers A/An, The, zero article, special uses, article repetition and exam practice.",
+      "rule": "A and an introduce an unspecified singular countable noun; the identifies a specific or identifiable noun. Many general plural and uncountable nouns take no article.",
+      "level": "SSC foundation to exam preparation",
+      "estimated_minutes": 50,
+      "prerequisites": [
+        "Nouns",
+        "Singular and plural nouns",
+        "Countable and uncountable nouns",
+        "Adjectives and noun phrases",
+        "Basic pronunciation"
+      ],
+      "learning_outcomes": [
+        "Explain the difference between indefinite, definite and zero articles.",
+        "Choose a or an according to pronunciation.",
+        "Use a/an in common quantity, idiomatic and special structures.",
+        "Use the with specific nouns, geographical names, superlatives and identifying phrases.",
+        "Recognize common zero-article patterns and their exceptions.",
+        "Understand when repeating an article changes the meaning.",
+        "Correct common article errors in sentences and passages."
+      ],
+      "source_reference": {
+        "source_file": "NEED-Article.pdf",
+        "source_title": "Basic English Grammar — Article chapter",
+        "publisher_or_label": "NEED",
+        "printed_pages": "218–241",
+        "uploaded_source_pages": 25,
+        "notes": "Scanned bilingual English-Bangla source. Content was reviewed page by page. The lesson uses original explanations and examples rather than reproducing the source exercises."
+      },
+      "editorial_review": {
+        "status": "editorial-review-required",
+        "coverage": "All main sections and rule groups from the source chapter are represented.",
+        "corrections": "Pronunciation-based a/an choice; same/similar distinction; plural agreement with the English; quantity phrase correction; geographical and institution exceptions; disease-name variation; road-name conventions; acronym pronunciation. Rule numbering for The follows the source sequence: superlative/comparative, ordinal, disease, road, epithet, specific abstract/material noun with of, relative clause.",
+        "limitations": "The scanned pages contain some awkward or outdated examples. See ARTICLE-EDITORIAL-REPORT.md for source page references and decisions."
+      },
+      "practice": {
+        "question_bank_file": "article-question-bank.csv",
+        "worksheet_file": "article-practice-worksheets.md",
+        "question_bank_track": "ssc",
+        "question_bank_topic": "article",
+        "question_count": 31,
+        "difficulty_levels": [
+          "easy",
+          "medium",
+          "hard"
+        ]
+      },
+      "sort_order": 1,
+      "review_status": "review",
+      "published": false,
+      "import_batch": "ssc-article-source-need-v1",
+      "sections": [
+        {
+          "id": "introduction",
+          "type": "introduction",
+          "title": "1. Introduction: What is an article?",
+          "body": "An article is a determiner used before a noun or noun phrase. It helps the reader understand whether the noun is being mentioned generally, introduced for the first time, or identified as a particular person or thing. English has three articles: a, an and the.\n\nA and an are called indefinite articles. The is called the definite article. When no article is used, the pattern is often called the zero article.\n\nবাংলায়: Article সাধারণত noun-এর আগে বসে noun-টি অনির্দিষ্ট, নির্দিষ্ট, নাকি সাধারণ অর্থে ব্যবহৃত হচ্ছে তা বুঝতে সাহায্য করে।",
+          "items": [
+            "A / An: an unspecified singular countable noun.",
+            "The: a noun that the reader or listener can identify.",
+            "Zero article: no article is used when English grammar does not require one."
+          ],
+          "examples": [
+            {
+              "text": "A student asked a question. The student received an answer.",
+              "explanation": "The first sentence introduces an unspecified student. The second sentence refers to that same student.",
+              "translation": "একজন শিক্ষার্থী প্রশ্ন করল। সেই শিক্ষার্থী উত্তর পেল।",
+              "label": "Example"
+            },
+            {
+              "text": "Water is essential for life.",
+              "explanation": "Water is used in a general, uncountable sense, so no article is needed.",
+              "translation": "জীবনের জন্য পানি অপরিহার্য।",
+              "label": "Example"
+            }
+          ]
+        },
+        {
+          "id": "form-and-placement",
+          "type": "concept",
+          "title": "2. Article position and noun types",
+          "body": "An article belongs to a noun phrase. It normally comes before the noun and before any adjective or adverb that describes that noun.\n\nA/an is used with singular countable nouns. The can be used with singular countable, plural countable and uncountable nouns when the reference is specific. General plural and uncountable nouns often take no article.\n\nPossessive and demonstrative determiners already identify the noun, so they do not normally combine with an article before the same noun.",
+          "formula": "Article + (Adverb) + Adjective + Noun",
+          "examples": [
+            {
+              "text": "a pen",
+              "explanation": "Article + noun.",
+              "label": "Example"
+            },
+            {
+              "text": "a colourful pen",
+              "explanation": "Article + adjective + noun.",
+              "label": "Example"
+            },
+            {
+              "text": "a very colourful pen",
+              "explanation": "Article + adverb + adjective + noun.",
+              "label": "Example"
+            },
+            {
+              "text": "my book / this book",
+              "explanation": "Do not say “the my book” or “a this book”.",
+              "label": "Example"
+            }
+          ],
+          "table": {
+            "headers": [
+              "Noun phrase",
+              "Typical article pattern",
+              "Example"
+            ],
+            "rows": [
+              [
+                "Singular countable, general",
+                "a / an",
+                "a student; an orange"
+              ],
+              [
+                "Singular countable, specific",
+                "the",
+                "the student near the door"
+              ],
+              [
+                "Plural countable, general",
+                "zero article",
+                "Students need practice."
+              ],
+              [
+                "Plural countable, specific",
+                "the",
+                "The students in Room 4 are ready."
+              ],
+              [
+                "Uncountable, general",
+                "zero article",
+                "Information is useful."
+              ],
+              [
+                "Uncountable, specific",
+                "the",
+                "The information in this file is useful."
+              ]
+            ]
+          },
+          "note": {
+            "type": "important",
+            "title": "Prerequisite",
+            "text": "A countable noun can be counted as one, two or more. An uncountable noun is not normally counted directly: advice, information, furniture, water and rice."
+          }
+        },
+        {
+          "id": "a-an-sound",
+          "type": "rule",
+          "title": "3. A and An: choose by sound, not spelling",
+          "body": "Use a before a consonant sound and an before a vowel sound. Listen to the first sound of the word that immediately follows the article. Do not decide only by looking at its first letter.\n\nবাংলায়: শব্দের প্রথম অক্ষর নয়, প্রথম উচ্চারণটি vowel sound নাকি consonant sound—সেটিই article নির্ধারণ করে।",
+          "formula": "a + consonant sound\nan + vowel sound",
+          "examples": [
+            {
+              "text": "a ewe",
+              "explanation": "Ewe begins with /juː/, a consonant-like /j/ sound.",
+              "label": "Example"
+            },
+            {
+              "text": "an FM station",
+              "explanation": "The letter F is pronounced /ɛf/, which begins with a vowel sound.",
+              "label": "Example"
+            },
+            {
+              "text": "an OC",
+              "explanation": "The letter O begins with a vowel sound.",
+              "label": "Example"
+            }
+          ],
+          "table": {
+            "headers": [
+              "Use A",
+              "Use An",
+              "Why"
+            ],
+            "rows": [
+              [
+                "a university",
+                "an umbrella",
+                "University begins with /j/; umbrella begins with a vowel sound."
+              ],
+              [
+                "a European country",
+                "an honest person",
+                "European begins with /j/; the h in honest is silent."
+              ],
+              [
+                "a one-time offer",
+                "an hour",
+                "One begins with /w/; the h in hour is silent."
+              ],
+              [
+                "a useful tool",
+                "an heir",
+                "Useful begins with /j/; heir begins with a vowel sound."
+              ],
+              [
+                "a BBA student",
+                "an MBA student",
+                "B is pronounced /biː/; M is pronounced /ɛm/."
+              ],
+              [
+                "a PhD student",
+                "an LLB student",
+                "P is pronounced /piː/; L is pronounced /ɛl/."
+              ]
+            ]
+          },
+          "note": {
+            "type": "tip",
+            "title": "Say it aloud",
+            "text": "If the first spoken sound is /j/ or /w/, use a: a university, a one-way street. If the first spoken sound is a vowel, use an: an hour, an MBA."
+          }
+        },
+        {
+          "id": "a-an-rules-1-5",
+          "type": "rule",
+          "title": "4. A/An rules 1–5: first mention, quantity and reference",
+          "body": "Rule 1 — First mention or non-specific reference. Use a/an when introducing one singular countable person or thing that is not yet identified. Use the later if the same noun becomes identifiable. The can also be used on first mention when the situation already makes the noun clear.\n\nRule 2 — Number expressions. A is used in expressions such as a hundred, a thousand, a million, a dozen and a couple. Say “a dozen eggs”; use “a dozen of the eggs” when referring to a particular set.\n\nRule 3 — Many a/an. The pattern many a/an + singular countable noun takes a singular verb. The ordinary pattern many + plural noun takes a plural verb and no article after many.\n\nRule 4 — Same, similar and certain. Use the same for identity, a similar for resemblance, and a certain for one particular but not named or identified person or thing. “The similar” is not the normal equivalent of “the same”.\n\nRule 5 — An unidentified person with a known name. A + title/name, as in “a Mr Karim”, means one person called Mr Karim, not previously identified. “Mr Karim” without an article normally identifies the known person.",
+          "formula": "Many a/an + singular countable noun + singular verb",
+          "examples": [
+            {
+              "text": "I noticed a bird on the balcony. The bird had a red tail.",
+              "explanation": "The bird is introduced first and then identified.",
+              "label": "Example"
+            },
+            {
+              "text": "A hundred guests attended the event.",
+              "explanation": "A comes before hundred in this number expression.",
+              "label": "Example"
+            },
+            {
+              "text": "Many a learner has asked this question.",
+              "explanation": "Learner is singular, so the verb has is singular.",
+              "label": "Example"
+            },
+            {
+              "text": "Many learners have asked this question.",
+              "explanation": "Many is followed by a plural noun and plural verb.",
+              "label": "Example"
+            },
+            {
+              "text": "We faced a similar problem last month.",
+              "explanation": "Similar means alike, not identical.",
+              "label": "Example"
+            },
+            {
+              "text": "The two reports contain the same figures.",
+              "explanation": "Same normally takes the.",
+              "label": "Example"
+            },
+            {
+              "text": "A Mr Karim left a message for you.",
+              "explanation": "The speaker does not identify which Mr Karim.",
+              "label": "Example"
+            }
+          ],
+          "note": {
+            "type": "warning",
+            "title": "A common source correction",
+            "text": "The source prints “a dozen of pencils”. In ordinary use, write “a dozen pencils”. “A dozen of the pencils” is possible when a particular set of pencils is meant."
+          }
+        },
+        {
+          "id": "a-an-rules-6-10",
+          "type": "rule",
+          "title": "5. A/An rules 6–10: degree, quantity and emphasis",
+          "body": "Rule 6 — Most meaning “very”. In formal or emphatic use, a most + adjective + noun can mean “a very ... noun”. Compare this with the most + adjective, which usually marks the highest degree in a group.\n\nRule 7 — Quantity expressions. Use a few with plural countable nouns and a little with uncountable nouns when you mean “some”. Other common expressions include a lot of, a good/great deal of and a huge amount of. Few and little without a are negative in meaning. Fixed expressions such as “a quarter to six” also retain a before the countable time unit quarter.\n\nRule 8 — Exclamations. Use What a/an + adjective + singular countable noun. Do not add an article after what before a plural or uncountable noun. How + adjective + subject + verb normally has no article in this pattern.\n\nRule 9 — Emphatic negative. Not a/an and not a single can emphasize that there is none.\n\nRule 10 — A proper name used as a common noun. A proper name can describe a type or a person comparable to the named individual. The article follows the sound of the name: an Einstein, a Shakespeare. The + name can identify the leading or famous example in a group, as in “the Shakespeare of her generation”.",
+          "formula": "a most + adjective + singular noun = a very ... noun\nWhat + a/an + adjective + singular countable noun!\nHow + adjective + subject + verb!",
+          "examples": [
+            {
+              "text": "It was a most unusual decision.",
+              "explanation": "Here most means very; it does not compare the decision with a group.",
+              "label": "Example"
+            },
+            {
+              "text": "She is the most careful editor on the team.",
+              "explanation": "The most marks the highest degree.",
+              "label": "Example"
+            },
+            {
+              "text": "I have a few questions and a little time.",
+              "explanation": "A few is used with countable plural questions; a little is used with uncountable time.",
+              "label": "Example"
+            },
+            {
+              "text": "What an excellent answer!",
+              "explanation": "Excellent begins with a vowel sound.",
+              "label": "Example"
+            },
+            {
+              "text": "What beautiful scenery!",
+              "explanation": "Scenery is uncountable, so no article follows what.",
+              "label": "Example"
+            },
+            {
+              "text": "How quickly the weather changed!",
+              "explanation": "How modifies the adverb quickly.",
+              "label": "Example"
+            },
+            {
+              "text": "Not a single page was missing.",
+              "explanation": "Not a single emphasizes zero.",
+              "label": "Example"
+            },
+            {
+              "text": "He is an Einstein in mathematics.",
+              "explanation": "Einstein is used as a common noun meaning a very intelligent person.",
+              "label": "Example"
+            },
+            {
+              "text": "It is a quarter to six.",
+              "explanation": "Quarter is a singular countable noun in this fixed time expression.",
+              "translation": "এখন ছয়টা বাজতে পনেরো মিনিট বাকি।"
+            }
+          ],
+          "table": {
+            "headers": [
+              "Expression",
+              "Noun type",
+              "Meaning"
+            ],
+            "rows": [
+              [
+                "a few",
+                "plural countable",
+                "some; a small number"
+              ],
+              [
+                "few",
+                "plural countable",
+                "almost none"
+              ],
+              [
+                "a little",
+                "uncountable",
+                "some; a small amount"
+              ],
+              [
+                "little",
+                "uncountable",
+                "almost none"
+              ],
+              [
+                "a lot of",
+                "countable or uncountable",
+                "a large number or amount"
+              ],
+              [
+                "a great deal of",
+                "uncountable",
+                "a large amount"
+              ]
+            ]
+          },
+          "note": {
+            "type": "important",
+            "title": "Do not confuse the two uses of most",
+            "text": "“A most useful guide” means a very useful guide. “The most useful guide” means the guide with the highest degree of usefulness in the comparison."
+          }
+        },
+        {
+          "id": "a-an-rules-11-15",
+          "type": "rule",
+          "title": "6. A/An rules 11–15: partitives, idioms and special structures",
+          "body": "Rule 11 — Partitive expressions. A/an can come before a countable unit, container or portion used with an uncountable noun. The uncountable noun itself does not become countable; the unit does.\n\nRule 12 — Fixed idioms and phrases. Learn the article as part of the complete expression. Examples from the source include a black sheep, give a hand, a brief period, a man of letters, a bed of roses, a red-letter day, at a loss, at a low ebb and at a stretch.\n\nRule 13 — A/an for a representative member of a class. A singular countable noun with a/an can represent any member of a whole class. A plural noun can express the same general idea without an article. The + singular or plural noun can refer to a known species or group.\n\nRule 14 — Too/So + adjective + a/an. In this formal structure, the article comes after the adjective and before a singular countable noun.\n\nRule 15 — Abbreviations and initialisms. Choose a/an by the spoken first sound of the abbreviation, not simply by its first written letter. If the abbreviation is used as a proper name after a preposition, it normally has no article; if it modifies a countable noun, the article belongs before the whole noun phrase.",
+          "formula": "Too / So + adjective + a/an + singular countable noun",
+          "examples": [
+            {
+              "text": "A piece of advice helped me.",
+              "explanation": "Piece is countable; advice is uncountable.",
+              "label": "Example"
+            },
+            {
+              "text": "She bought a loaf of bread.",
+              "explanation": "Loaf is the countable unit.",
+              "label": "Example"
+            },
+            {
+              "text": "The committee gave us an item of information.",
+              "explanation": "Item is countable; information is uncountable.",
+              "label": "Example"
+            },
+            {
+              "text": "He gave me a hand with the boxes.",
+              "explanation": "Give a hand is a fixed expression meaning help.",
+              "label": "Example"
+            },
+            {
+              "text": "A tiger is a powerful animal.",
+              "explanation": "A singular countable noun represents the class.",
+              "label": "Example"
+            },
+            {
+              "text": "Tigers are powerful animals.",
+              "explanation": "The plural noun represents the class without an article.",
+              "label": "Example"
+            },
+            {
+              "text": "This is too difficult a question for a beginner.",
+              "explanation": "The article follows difficult.",
+              "label": "Example"
+            },
+            {
+              "text": "She is as good a speaker as her sister.",
+              "explanation": "The article follows the adjective good.",
+              "label": "Example"
+            },
+            {
+              "text": "He is a BBA student, but his sister is an MBA graduate.",
+              "explanation": "BBA begins with /b/; MBA begins with /ɛm/.",
+              "label": "Example"
+            },
+            {
+              "text": "We received a UNICEF information kit.",
+              "explanation": "UNICEF is pronounced with an initial /j/ sound when said as a word; a is used before the phrase.",
+              "label": "Example"
+            }
+          ],
+          "table": {
+            "headers": [
+              "Uncountable noun",
+              "Countable expression"
+            ],
+            "rows": [
+              [
+                "advice / information",
+                "a piece of advice / information"
+              ],
+              [
+                "furniture",
+                "a piece of furniture"
+              ],
+              [
+                "soap",
+                "a bar of soap"
+              ],
+              [
+                "bread",
+                "a loaf or a slice of bread"
+              ],
+              [
+                "hair",
+                "a lock of hair"
+              ],
+              [
+                "rain",
+                "a shower of rain"
+              ],
+              [
+                "work",
+                "a day of work"
+              ],
+              [
+                "corn / wheat",
+                "an ear of corn / wheat"
+              ],
+              [
+                "clothing",
+                "an item of clothing"
+              ],
+              [
+                "violence",
+                "an outbreak of violence"
+              ],
+              [
+                "vengeance",
+                "an act of vengeance"
+              ],
+              [
+                "power",
+                "an abuse of power"
+              ]
+            ]
+          },
+          "note": {
+            "type": "warning",
+            "title": "Acronym sound matters",
+            "text": "The source labels some letter names as “semi-vowels”. The useful rule is simpler and more accurate: listen to the first sound of the spoken abbreviation. A BBA, a PhD, an MBA, an FM station, an LLB."
+          }
+        },
+        {
+          "id": "the-basic",
+          "type": "concept",
+          "title": "7. The: meaning and pronunciation",
+          "body": "The is the definite article. Use it when the noun is identifiable to the reader or listener because it has already been mentioned, is clear from the situation, is specified by extra information, or is unique in the relevant context.\n\nThe has two common weak pronunciations: /ðə/ before a consonant sound and /ðiː/ before a vowel sound. The pronunciation can also change for emphasis. The spelling does not change.\n\nবাংলায়: নির্দিষ্ট ব্যক্তি, বস্তু বা বিষয় বোঝাতে the ব্যবহৃত হয়।",
+          "formula": "the + identifiable noun / noun phrase",
+          "examples": [
+            {
+              "text": "Please close the window.",
+              "explanation": "The listener can identify which window is meant from the situation.",
+              "label": "Example"
+            },
+            {
+              "text": "The book you lent me is helpful.",
+              "explanation": "The relative clause identifies the book.",
+              "label": "Example"
+            },
+            {
+              "text": "the book",
+              "explanation": "Usually /ðə/ before the consonant sound /b/.",
+              "label": "Example"
+            },
+            {
+              "text": "the apple",
+              "explanation": "Often /ðiː/ before the vowel sound /æ/.",
+              "label": "Example"
+            }
+          ],
+          "note": {
+            "type": "tip",
+            "title": "Remember",
+            "text": "Use meaning to choose the article. Pronunciation helps you choose between a and an; it does not decide whether the noun is definite."
+          }
+        },
+        {
+          "id": "the-rules-1-7",
+          "type": "rule",
+          "title": "8. The rules 1–7: specific nouns, groups and familiar names",
+          "body": "Rule 1 — Specific reference. The can be used before a common, material, abstract or proper noun when the reference is specific or identifiable.\n\nRule 2 — Certain famous or historical names. Some established names of monuments, events and historical sites take the. Learn the official form; do not add the to every city or place name.\n\nRule 3 — Nationality groups. The + nationality adjective can refer to a people as a group: the English, the French, the Japanese. These group expressions normally take plural verbs. The language name is different and normally has no article: English, French, Japanese.\n\nRule 4 — Paired comparatives. Use the before both comparative phrases in a structure showing that one change is linked to another.\n\nRule 5 — Adjectives used as group nouns. The + adjective can refer to a whole group: the rich, the poor, the educated, the unemployed. These expressions normally take plural verbs.\n\nRule 6 — Unique or contextually familiar things. Use the for a thing understood as unique in the context: the sun, the moon, the sky, the earth.\n\nRule 7 — Established names. The is part of many established names of newspapers, ships, museums, scriptures, literary works, trains and monuments. Some seasons and directions also take the when treated as named regions or specified periods.",
+          "formula": "The + comparative ..., the + comparative ...",
+          "examples": [
+            {
+              "text": "The advice in this letter is useful.",
+              "explanation": "The phrase in this letter identifies specific advice.",
+              "label": "Example"
+            },
+            {
+              "text": "The Battle of Plassey is part of South Asian history.",
+              "explanation": "The is used in the established name of the historical event.",
+              "label": "Example"
+            },
+            {
+              "text": "The Japanese are known for their language and culture.",
+              "explanation": "The Japanese refers to people; the verb is plural.",
+              "label": "Example"
+            },
+            {
+              "text": "The more carefully you read, the fewer errors you make.",
+              "explanation": "The introduces both comparative clauses.",
+              "label": "Example"
+            },
+            {
+              "text": "The unemployed need access to training.",
+              "explanation": "The + adjective refers to a group of people.",
+              "label": "Example"
+            },
+            {
+              "text": "The moon was visible above the trees.",
+              "explanation": "The moon is treated as unique in this context.",
+              "label": "Example"
+            },
+            {
+              "text": "I read The Daily Star every morning.",
+              "explanation": "The is part of the newspaper’s established name.",
+              "label": "Example"
+            }
+          ],
+          "table": {
+            "headers": [
+              "Group or name",
+              "Examples"
+            ],
+            "rows": [
+              [
+                "People as a group",
+                "the English, the French, the Japanese"
+              ],
+              [
+                "Adjective as group noun",
+                "the rich, the poor, the elderly"
+              ],
+              [
+                "Directions / regions",
+                "the East, the West, the Middle East"
+              ],
+              [
+                "Named or specified seasons",
+                "the rainy season; the winter of 2025"
+              ],
+              [
+                "Ships / newspapers / museums",
+                "the Titanic; The Daily Star; the British Museum"
+              ],
+              [
+                "Monuments / scriptures / works",
+                "the Taj Mahal; the Quran; the Mahabharata"
+              ]
+            ]
+          },
+          "note": {
+            "type": "warning",
+            "title": "Check the official name",
+            "text": "The article is not automatic before every hotel, museum, university or monument. For example, Dhaka University is normally written without the. Use the established name."
+          }
+        },
+        {
+          "id": "the-rules-8-14",
+          "type": "rule",
+          "title": "9. The rules 8–14: geographical names and institutions",
+          "body": "Rule 8 — Rivers, seas, oceans and bays. The normally comes before the names of rivers, seas, oceans and bays.\n\nRule 9 — Mountain ranges, deserts, plateaus and island groups. These geographical group names commonly take the. Individual mountain peaks and individual islands generally do not.\n\nRule 10 — Short country forms. Use the with common abbreviated country names such as the UK, the USA and the US.\n\nRule 11 — Full country names. The is used in many plural or descriptive official country names, such as the United States, the United Kingdom, the United Arab Emirates and the Netherlands. Most country names, including Bangladesh, India and Japan, do not take the.\n\nRule 12 — Musical instruments. In the traditional examination pattern, use the when talking about playing an instrument: play the guitar, the piano or the violin. Sports normally take no article.\n\nRule 13 — Certain institutions or professions. Some established institutions and professional bodies take the, for example the Army, the Navy and the Bar. This is a limited pattern, not a rule that every occupation takes the.\n\nRule 14 — Noun phrases with of. The often comes before the first noun when an of-phrase identifies a particular person, group or thing.",
+          "formula": "the + geographical group name\nthe + noun + of + noun",
+          "examples": [
+            {
+              "text": "The Padma flows through Bangladesh.",
+              "explanation": "River names normally take the.",
+              "label": "Example"
+            },
+            {
+              "text": "The Bay of Bengal lies to the south of Bangladesh.",
+              "explanation": "Bay names normally take the.",
+              "label": "Example"
+            },
+            {
+              "text": "The Himalayas extend across several countries.",
+              "explanation": "A mountain range takes the.",
+              "label": "Example"
+            },
+            {
+              "text": "Mount Everest is in the Himalayas.",
+              "explanation": "An individual mountain peak normally has no article.",
+              "label": "Example"
+            },
+            {
+              "text": "She travelled to the UK last year.",
+              "explanation": "The UK is a conventional abbreviated country name.",
+              "label": "Example"
+            },
+            {
+              "text": "Bangladesh is in South Asia.",
+              "explanation": "Most country names do not take the.",
+              "label": "Example"
+            },
+            {
+              "text": "He plays the violin.",
+              "explanation": "The is used in the conventional instrument pattern.",
+              "label": "Example"
+            },
+            {
+              "text": "The people of Bangladesh speak Bangla.",
+              "explanation": "The phrase of Bangladesh identifies a particular group.",
+              "label": "Example"
+            }
+          ],
+          "table": {
+            "headers": [
+              "Usually with The",
+              "Usually without The"
+            ],
+            "rows": [
+              [
+                "the Padma; the Atlantic Ocean",
+                "Lake Victoria; Lake Baikal"
+              ],
+              [
+                "the Himalayas; the Alps",
+                "Mount Everest; Mount Fuji"
+              ],
+              [
+                "the Sahara; the Gobi",
+                "Bangladesh; India; Japan"
+              ],
+              [
+                "the United States; the Netherlands",
+                "Sri Lanka; Nepal; Singapore"
+              ]
+            ]
+          },
+          "note": {
+            "type": "important",
+            "title": "Lake names",
+            "text": "Many names in the form Lake + proper name take no article: Lake Victoria, Lake Baikal. Some other lake-group names, such as the Great Lakes, do take the."
+          }
+        },
+        {
+          "id": "the-rules-15-21",
+          "type": "rule",
+          "title": "10. The rules 15–21: superlatives, ordinals and identifying phrases",
+          "body": "Rule 15 — Superlatives and comparison of a pair. Use the before a superlative adjective in an ordinary noun phrase: the tallest building, the most useful book. The source also notes that a comparative can take the when comparing exactly two people or things: the taller of the two. When comparing three or more, use a superlative: the tallest of the three. In a paired comparative sentence, use the before both comparative clauses: the more you practise, the better you become.\n\nRule 16 — Ordinal numbers. Use the before an ordinal in an ordinary noun phrase: the first chapter, the second attempt. In royal names, the is spoken before the ordinal: Elizabeth the Second. When the name is written with a Roman numeral, the article is not written before the numeral: Elizabeth II.\n\nRule 17 — Disease names. Disease names do not all take the. The source lists the measles, the gout, the mumps and the plague. Modern usage varies: measles and gout are commonly used without the; “the mumps” and “the plague” are established forms. A fever, a cough and a headache use a/an because they are countable symptom nouns.\n\nRule 18 — Roads and streets. Ordinary street names generally do not take the: Green Road, Oxford Street. Use the when the noun is a common, identifiable road: the road to the station. Some official names may include The.\n\nRule 19 — Epithets. An epithet is a descriptive title attached to a person’s name. The is used in established forms such as Alexander the Great and Akbar the Great.\n\nRule 20 — Specific abstract and material nouns followed by of. Use the when an of-phrase identifies the particular quality, substance or amount being discussed: the honesty of the witness, the water of this pond, the gold in this ring. Compare general uses such as Honesty matters and Gold is valuable, which take no article.\n\nRule 21 — Nouns identified by a relative clause. The can identify a particular noun when a who, which or that clause tells the reader exactly which person or thing is meant.",
+          "formula": "the + superlative adjective\nthe + comparative + of the two\nthe + noun + of + noun (specific reference)\nthe + noun + who / which / that + identifying clause",
+          "examples": [
+            {
+              "text": "She is the most careful student in the group.",
+              "explanation": "Most careful is a superlative."
+            },
+            {
+              "text": "He is the taller of the two brothers.",
+              "explanation": "A pair of two is being compared."
+            },
+            {
+              "text": "This is the first lesson in the unit.",
+              "explanation": "First is an ordinal."
+            },
+            {
+              "text": "The mumps can spread in close-contact settings.",
+              "explanation": "The mumps is an established disease name."
+            },
+            {
+              "text": "The road to the station is closed.",
+              "explanation": "The identifies a particular road."
+            },
+            {
+              "text": "Akbar the Great ruled the Mughal Empire.",
+              "explanation": "The is part of the epithet."
+            },
+            {
+              "text": "The honesty of the witness impressed the judge.",
+              "explanation": "The of-phrase identifies a particular instance or quality of honesty."
+            },
+            {
+              "text": "The water of this pond is clear.",
+              "explanation": "The of-phrase specifies which water is meant."
+            },
+            {
+              "text": "The student who submitted the project first received a certificate.",
+              "explanation": "The relative clause identifies a particular student."
+            }
+          ],
+          "note": {
+            "type": "warning",
+            "title": "Disease names vary",
+            "text": "The source’s four-disease list is too broad for modern English. Check the conventional name of each disease. For example, “measles” and “gout” commonly appear without the, while “the mumps” and “the plague” are established expressions."
+          }
+        },
+        {
+          "id": "zero-article-rules-1-6",
+          "type": "rule",
+          "title": "11. Omission of articles: rules 1–6",
+          "body": "The zero article means that no article is used. It is common when a noun is general rather than specific.\n\nRule 1 — General plural nouns and some family-title expressions. Use no article before plural nouns referring to people or things generally: students, teachers, birds. Some older or family-context expressions omit an article before words such as Mother or Father when used as a name or title. “Man is mortal” is a traditional generic expression; in modern neutral writing, “Human beings are mortal” is clearer.\n\nRule 2 — General abstract and material nouns. Use no article when speaking generally about honesty, kindness, gold, iron, water or music. Use the when the noun is specified.\n\nRule 3 — Most proper nouns. Names of people, cities and most countries normally take no article.\n\nRule 4 — Nature in a general sense. Use no article in “Nature is beautiful”. Use the in “the nature of the problem”.\n\nRule 5 — Days and months. Do not normally use an article before Sunday, Monday, January or December.\n\nRule 6 — Sports and games. Use no article before sports and game names in general statements: play cricket, enjoy chess. Use the for a particular match or event.",
+          "examples": [
+            {
+              "text": "Students need regular practice.",
+              "explanation": "Students is a general plural noun.",
+              "label": "Example"
+            },
+            {
+              "text": "Honesty matters in every profession.",
+              "explanation": "Honesty is an abstract noun used generally.",
+              "label": "Example"
+            },
+            {
+              "text": "Gold is used in jewellery.",
+              "explanation": "Gold is a material noun used generally.",
+              "label": "Example"
+            },
+            {
+              "text": "Rahim lives in Dhaka.",
+              "explanation": "Personal and city names normally take no article.",
+              "label": "Example"
+            },
+            {
+              "text": "Nature can be unpredictable.",
+              "explanation": "Nature means the natural world.",
+              "label": "Example"
+            },
+            {
+              "text": "The nature of the complaint is unclear.",
+              "explanation": "The phrase of the complaint specifies the meaning.",
+              "label": "Example"
+            },
+            {
+              "text": "We play cricket after school.",
+              "explanation": "Cricket is a sport.",
+              "label": "Example"
+            },
+            {
+              "text": "The cricket match begins at four.",
+              "explanation": "The match is a specific event.",
+              "label": "Example"
+            }
+          ],
+          "note": {
+            "type": "important",
+            "title": "A singular countable noun still needs a determiner",
+            "text": "Do not remove the article from every singular noun. Write “A student needs practice” or “The student needs practice”, not “Student needs practice”, unless the noun is used in a special title, vocative or established expression."
+          }
+        },
+        {
+          "id": "zero-article-rules-7-13",
+          "type": "rule",
+          "title": "12. Omission of articles: rules 7–13",
+          "body": "Rule 7 — Meals. Breakfast, lunch and dinner usually take no article when used generally. Use the when a particular meal is identified or described as a specific event.\n\nRule 8 — Institutions used for their primary purpose. Expressions such as go to school, go to college, attend university, go to bed, be at work, go to church (for a service), be in prison (as a prisoner), go to court (for a legal proceeding) and go home commonly omit the article. Usage varies: British English often says in hospital, while American English commonly says in the hospital. The building itself takes the where it is a particular place. Words such as zoo, market and mosque do not automatically omit the article; standard usage is usually the zoo, the market and the mosque.\n\nRule 9 — Vocative use. Do not use an article before a common noun used to address someone directly: “Come here, doctor.”\n\nRule 10 — Individual islands and mountain peaks. Many individual island and peak names take no article: Java, Sandwip, Mount Everest. Group names take the: the Andamans, the Himalayas. Ceylon is a historical name for Sri Lanka.\n\nRule 11 — General uncountable nouns. Use no article before an uncountable noun used generally: music, bread, milk, information. Use the when the noun is specified.\n\nRule 12 — Kind/type/class/sort/species of. Questions commonly use “What kind of music?”, “What type of book?” and “What species of bird?”. In affirmative statements, a can appear: “It was a kind of celebration.”\n\nRule 13 — Author names used for their works. A writer’s name can stand for that writer’s works: read Shakespeare, study Nazrul, listen to Mozart. No article is used in this use.",
+          "examples": [
+            {
+              "text": "We usually eat breakfast at seven.",
+              "explanation": "Breakfast is a general meal.",
+              "label": "Example"
+            },
+            {
+              "text": "The breakfast served at the guesthouse was excellent.",
+              "explanation": "A particular breakfast is identified.",
+              "label": "Example"
+            },
+            {
+              "text": "My younger brother goes to school by bus.",
+              "explanation": "School is used for its main educational purpose.",
+              "label": "Example"
+            },
+            {
+              "text": "I went to the school to collect a certificate.",
+              "explanation": "The school building is a particular place.",
+              "label": "Example"
+            },
+            {
+              "text": "Please wait here, doctor.",
+              "explanation": "Doctor is used in direct address.",
+              "label": "Example"
+            },
+            {
+              "text": "Mount Everest is a famous peak.",
+              "explanation": "An individual mountain peak.",
+              "label": "Example"
+            },
+            {
+              "text": "The Himalayas are in Asia.",
+              "explanation": "A mountain range.",
+              "label": "Example"
+            },
+            {
+              "text": "What kind of fruit do you prefer?",
+              "explanation": "Question form; no article before kind.",
+              "label": "Example"
+            },
+            {
+              "text": "It was a kind of puzzle.",
+              "explanation": "Affirmative noun phrase; a is used.",
+              "label": "Example"
+            },
+            {
+              "text": "I enjoy reading Shakespeare.",
+              "explanation": "The author’s name stands for the works.",
+              "label": "Example"
+            },
+            {
+              "text": "The witness had to go to court.",
+              "explanation": "Court is used for the legal proceeding, not a particular building."
+            },
+            {
+              "text": "He was sent to prison.",
+              "explanation": "Prison is used for the state or purpose of imprisonment."
+            },
+            {
+              "text": "They went to church on Sunday.",
+              "explanation": "Church is used for attending a religious service."
+            },
+            {
+              "text": "She went to the mosque near the station.",
+              "explanation": "In standard usage, a particular mosque is normally referred to with the."
+            }
+          ],
+          "note": {
+            "type": "warning",
+            "title": "Institution expressions vary",
+            "text": "“Go to school” is standard for the purpose of studying; “go to the school” refers to a particular building. “In hospital” is especially British; American English commonly uses “in the hospital”. The source groups zoo, bazar/market and mosque with articleless institution words, but standard usage commonly says “the zoo”, “the market” and “the mosque”. “Go to church”, “be in prison” and “go to court” are purpose-based expressions."
+          }
+        },
+        {
+          "id": "repetition-rules-1-4",
+          "type": "rule",
+          "title": "13. Repetition of articles: rules 1–4",
+          "body": "Article repetition can change how readers understand the noun phrase. It can show whether two titles refer to one person or two, and whether an adjective describes one noun or separate nouns. Context remains important; article repetition is a useful clue, not an automatic test in every sentence.\n\nRule 1 — One person or two people. “The secretary and treasurer is present” normally describes one person with two roles. “The secretary and the treasurer are present” normally describes two people.\n\nRule 2 — One person with two roles. When two roles belong to the same person, the article may appear once: “She is a teacher and mentor.” If the sentence presents separate people or separate noun phrases, repeat the article: “A teacher and a mentor joined the panel.”\n\nRule 3 — One noun with two adjectives. Use one article before a single noun described by two adjectives: “a patient and thoughtful teacher”. Repeat the article when there are two separate noun phrases: “a patient teacher and a thoughtful student”.\n\nRule 4 — Few/a few and little/a little. A few and a little mean some; few and little mean almost none. Few is used with plural countable nouns; little is used with uncountable nouns.",
+          "examples": [
+            {
+              "text": "The secretary and treasurer is attending the meeting.",
+              "explanation": "One person holds both positions.",
+              "label": "Example"
+            },
+            {
+              "text": "The secretary and the treasurer are attending the meeting.",
+              "explanation": "Two people are attending.",
+              "label": "Example"
+            },
+            {
+              "text": "She is a teacher and mentor.",
+              "explanation": "The two roles belong to one person.",
+              "label": "Example"
+            },
+            {
+              "text": "A teacher and a mentor joined the panel.",
+              "explanation": "Two people are introduced as separate noun phrases.",
+              "label": "Example"
+            },
+            {
+              "text": "A patient and thoughtful teacher helped us.",
+              "explanation": "Two adjectives describe one teacher.",
+              "label": "Example"
+            },
+            {
+              "text": "A patient teacher and a thoughtful student helped us.",
+              "explanation": "Two different people are described.",
+              "label": "Example"
+            },
+            {
+              "text": "Few students understood the final question.",
+              "explanation": "Almost no students understood it.",
+              "label": "Example"
+            },
+            {
+              "text": "A few students understood the final question.",
+              "explanation": "Some students understood it.",
+              "label": "Example"
+            }
+          ],
+          "table": {
+            "headers": [
+              "Expression",
+              "Noun type",
+              "Meaning"
+            ],
+            "rows": [
+              [
+                "few",
+                "plural countable",
+                "almost none"
+              ],
+              [
+                "a few",
+                "plural countable",
+                "some; a small number"
+              ],
+              [
+                "little",
+                "uncountable",
+                "almost no amount"
+              ],
+              [
+                "a little",
+                "uncountable",
+                "some; a small amount"
+              ]
+            ]
+          },
+          "note": {
+            "type": "tip",
+            "title": "Verb agreement",
+            "text": "Many a + singular noun takes a singular verb. Few/a few + plural countable noun normally takes a plural verb. Little/a little + uncountable noun normally takes a singular verb."
+          }
+        },
+        {
+          "id": "common-mistakes",
+          "type": "common_mistake",
+          "title": "14. Common mistakes and corrections",
+          "body": "These corrections address common learner errors and several overgeneralizations in the scanned source. The source is useful as a topic map, but a few examples need updating before publication.",
+          "mistakes": [
+            {
+              "incorrect": "an university",
+              "correct": "a university",
+              "explanation": "University begins with the consonant sound /j/."
+            },
+            {
+              "incorrect": "a honest person",
+              "correct": "an honest person",
+              "explanation": "The h is silent; honest begins with a vowel sound."
+            },
+            {
+              "incorrect": "The similar problem happened again.",
+              "correct": "A similar problem happened again.",
+              "explanation": "Use a similar for resemblance. Use the same for identity."
+            },
+            {
+              "incorrect": "a dozen of pencils",
+              "correct": "a dozen pencils",
+              "explanation": "Use a dozen + plural noun. “A dozen of the pencils” is possible for a specific set."
+            },
+            {
+              "incorrect": "The English speaks English.",
+              "correct": "The English speak English.",
+              "explanation": "The English means English people and takes a plural verb."
+            },
+            {
+              "incorrect": "The Bangladesh is beautiful.",
+              "correct": "Bangladesh is beautiful.",
+              "explanation": "Most country names do not take the."
+            },
+            {
+              "incorrect": "The Mount Everest is high.",
+              "correct": "Mount Everest is high.",
+              "explanation": "Individual mountain peaks normally take no article."
+            },
+            {
+              "incorrect": "She plays the cricket.",
+              "correct": "She plays cricket.",
+              "explanation": "Sports normally take no article in general statements."
+            },
+            {
+              "incorrect": "The my book is new.",
+              "correct": "My book is new.",
+              "explanation": "A possessive determiner already identifies the noun."
+            },
+            {
+              "incorrect": "I went to school to repair the roof.",
+              "correct": "I went to the school to repair the roof.",
+              "explanation": "The sentence refers to the building, not the normal student purpose."
+            }
+          ],
+          "note": {
+            "type": "important",
+            "title": "Editorial policy",
+            "text": "Where the scanned book gives an outdated, awkward or overly broad rule, this lesson keeps the topic but teaches the current standard pattern. The detailed source-to-correction notes are in ARTICLE-EDITORIAL-REPORT.md."
+          }
+        },
+        {
+          "id": "quick-revision",
+          "type": "quick_revision",
+          "title": "15. Quick revision",
+          "body": "Use this section to review the chapter before attempting the question bank.",
+          "items": [
+            "A/an depends on the first spoken sound: a university, an hour.",
+            "A/an normally comes before a singular countable noun.",
+            "The is used when the noun is identifiable or specific.",
+            "General plural and uncountable nouns commonly take no article.",
+            "Many a + singular noun takes a singular verb.",
+            "A few / a little mean some; few / little mean almost none.",
+            "The + comparative ..., the + comparative ... is a paired structure.",
+            "The rich / the poor refer to groups and take plural verbs.",
+            "Use the with many rivers, seas, oceans, bays, ranges and island groups.",
+            "Most country names, individual peaks and individual islands take no article.",
+            "Use no article with general languages, sports, meals, days and months.",
+            "Article repetition can distinguish one person with two roles from two people.",
+            "Possessive and demonstrative determiners normally replace the article before the same noun."
+          ],
+          "note": {
+            "type": "tip",
+            "title": "Last-minute test",
+            "text": "Before choosing an article, ask: Is the noun singular and countable? Is it specific? What is the first sound? Is the noun part of a fixed expression or proper name?"
+          }
+        },
+        {
+          "id": "practice-assessment",
+          "type": "practice",
+          "title": "16. Practice and assessment",
+          "body": "The source chapter contains three written practice levels and a short MCQ set. English-Hater’s first Article question bank includes original MCQs at easy, medium and hard levels. Use the “Practice this topic” button after reading the lesson.\n\nA separate worksheet file accompanies this lesson package with original fill-in-the-blank tasks at three levels and an answer key. The current student app’s protected question engine supports MCQs; the written worksheet is supplied separately until non-MCQ exercise types are added.",
+          "items": [
+            "Beginner: choose a, an, the or zero article in short sentences.",
+            "Intermediate: apply quantity expressions, proper names, comparatives and institution patterns.",
+            "Advanced: complete short passages and explain article choices.",
+            "Assessment: complete the mixed MCQ bank and review every explanation."
+          ],
+          "note": {
+            "type": "important",
+            "title": "Practice bank link",
+            "text": "Question-bank records use track = ssc and topic = article. Import article-question-bank.csv through Content Admin. Keep answers in the protected question bank, not in this public lesson JSON."
+          }
+        }
+      ]
+    }
+  ]
+}

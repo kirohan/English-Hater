@@ -25,6 +25,8 @@ Use one lesson per track and topic. For example, `lesson-ssc-article` uses `trac
 | `prerequisites` | Optional | Concepts students should know first |
 | `learning_outcomes` | Optional | What students should be able to do after the lesson |
 | `sort_order` | Optional | Order within the learning path |
+| `source_reference` | Optional | Source title, printed page range and editorial provenance; not shown in the student lesson |
+| `practice` | Optional | Link to the protected question bank and supplementary worksheets |
 
 Legacy `rule` and `examples` fields remain supported for older lessons.
 
@@ -96,6 +98,8 @@ JSON imports always enter the review queue as unpublished. Importing a changed v
 - Use Bangla only where it improves understanding or is part of the planned teaching style.
 - Do not put MCQ answer keys in lesson JSON. Keep questions and answer explanations in the protected question bank.
 - Keep a stable lesson ID when updating a chapter so the new version replaces the intended lesson.
+- Keep source page references and editorial decisions in `source_reference` or a companion editorial report.
+- If the student app only supports MCQs for a topic, keep written worksheets as companion material until the relevant interactive question type exists.
 - A lesson's `topic` must match the `topic` value used by its practice questions.
 
 ## 7. Database migration

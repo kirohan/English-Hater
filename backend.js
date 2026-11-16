@@ -283,6 +283,7 @@
       learning_outcomes: Array.isArray(content.learning_outcomes) ? content.learning_outcomes : [],
       sections: Array.isArray(content.sections) ? content.sections : [],
       practice: content.practice && typeof content.practice === 'object' ? content.practice : {},
+      source_reference: content.source_reference && typeof content.source_reference === 'object' ? content.source_reference : null,
       schema_version: content.schema_version || '1.0.0',
       examples: Array.isArray(l.examples) ? l.examples : [],
       curriculum: l.curriculum || '', chapter: l.chapter || '',
@@ -396,7 +397,8 @@
         prerequisites: Array.isArray(l.prerequisites) ? l.prerequisites : [],
         learning_outcomes: Array.isArray(l.learning_outcomes) ? l.learning_outcomes : [],
         sections: Array.isArray(l.sections) ? l.sections : [],
-        practice: l.practice && typeof l.practice === 'object' ? l.practice : {}
+        practice: l.practice && typeof l.practice === 'object' ? l.practice : {},
+        source_reference: l.source_reference && typeof l.source_reference === 'object' ? l.source_reference : null
       },
       review_status: l.review_status || 'draft', import_batch: l.import_batch || '', sort_order: Number(l.sort_order || 0),
       published: (l.review_status || 'draft') === 'approved' && l.published !== false, updated_at: new Date().toISOString()
